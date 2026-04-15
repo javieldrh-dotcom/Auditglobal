@@ -1,85 +1,156 @@
-<style>
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 15px;
-        padding: 20px;
-        background: rgba(13, 17, 23, 0.9);
-        border-bottom: 1px solid #333;
-    }
-    .metric-card {
-        background: #0d1117;
-        border: 1px solid #222;
-        padding: 15px;
-        border-radius: 8px;
-        position: relative;
-        overflow: hidden;
-    }
-    .metric-card::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0;
-        width: 4px; height: 100%;
-        background: var(--acc);
-    }
-    .metric-title { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
-    .metric-value { font-size: 22px; font-weight: bold; margin-top: 5px; color: var(--text); }
-    .metric-trend { font-size: 10px; margin-top: 5px; }
-    .up { color: var(--ia-green); }
-    
-    /* Gráfico de Rendimiento de Agentes */
-    .agent-performance {
-        margin-top: 20px;
-        padding: 20px;
-        background: #0d1117;
-        border-radius: 8px;
-        border: 1px solid #333;
-    }
-    .agent-bar-row { display: flex; align-items: center; margin-bottom: 10px; font-size: 11px; }
-    .bar-bg { flex-grow: 1; height: 8px; background: #161b22; margin: 0 10px; border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; background: var(--acc); box-shadow: 0 0 10px var(--acc); }
-</style>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>AGI - Global Intelligence Suite v4.0</title>
+    <style>
+        :root { --bg: #010409; --acc: #3b82f6; --ia-green: #00ff41; --danger: #ff3e3e; --gray: #8b949e; --text: #f0f6fc; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; overflow-x: hidden; }
+        
+        /* Sistema de Navegación */
+        header { background: rgba(1, 4, 9, 0.9); border-bottom: 1px solid #333; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; }
+        .nav-btn { background: transparent; border: 1px solid var(--acc); color: var(--acc); padding: 5px 15px; cursor: pointer; margin: 0 5px; font-size: 10px; }
 
-<div class="dashboard-grid no-print">
-    <div class="metric-card">
-        <div class="metric-title">Capital en Proceso</div>
-        <div class="metric-value" id="val-proceso">$1,420,500</div>
-        <div class="metric-trend up">↑ 12.4% vs mes anterior</div>
-    </div>
-    <div class="metric-card">
-        <div class="metric-title">Tasa de Éxito Pericial</div>
-        <div class="metric-value">91.8%</div>
-        <div class="metric-trend up">↑ 3.2% Optimización GNN</div>
-    </div>
-    <div class="metric-card" style="border-color: var(--ia-green);">
-        <div class="metric-title">ROI Promedio por Caso</div>
-        <div class="metric-value">4.2x</div>
-        <div class="metric-trend">Basado en Honorarios Nivel III</div>
-    </div>
-    <div class="metric-card">
-        <div class="metric-title">Integridad de Sidechain</div>
-        <div class="metric-value" style="color:var(--ia-green)">100%</div>
-        <div class="metric-trend">ISO-27037 Compliance OK</div>
-    </div>
-</div>
+        /* Contenedores Principales */
+        .view-section { display: none; padding: 20px; }
+        .active-view { display: block; }
 
-<div class="agent-performance no-print">
-    <strong style="font-size: 12px; color: var(--acc);">RENDIMIENTO DE AGENTES IA (AUTÓNOMOS)</strong>
-    <div style="margin-top:15px;">
-        <div class="agent-bar-row">
-            <span style="width:120px;">Agente Atribución (Fingerprint)</span>
-            <div class="bar-bg"><div class="bar-fill" style="width: 94%;"></div></div>
-            <span>94% Eff.</span>
+        /* Estilos del Dashboard (Consola) */
+        .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); background: #0d1117; border: 1px solid #333; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+        .stat-card { border-left: 3px solid var(--acc); padding-left: 15px; }
+        .stat-val { font-size: 22px; font-weight: bold; color: var(--acc); }
+        .stat-lbl { font-size: 9px; color: var(--gray); text-transform: uppercase; }
+
+        /* Pantalla de Registro / Cliente */
+        .client-card { max-width: 600px; margin: 40px auto; background: #0d1117; padding: 40px; border-radius: 15px; border: 1px solid #30363d; text-align: center; }
+        input { width: 100%; padding: 15px; margin: 10px 0; background: #010409; border: 1px solid #333; color: var(--ia-green); border-radius: 5px; box-sizing: border-box; }
+        .btn-main { background: var(--acc); color: #fff; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
+
+        /* Radar y Terminal */
+        .console-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; height: 500px; }
+        #radar { background: radial-gradient(circle, #001529 0%, #000 100%); border: 1px solid #333; position: relative; overflow: hidden; }
+        .terminal { background: #000; border: 1px solid var(--acc); padding: 15px; color: var(--ia-green); font-size: 11px; overflow-y: auto; }
+        
+        /* Nodo Estilo */
+        .node { position: absolute; width: 10px; height: 10px; background: var(--ia-green); border-radius: 50%; box-shadow: 0 0 10px var(--ia-green); }
+
+        /* Reporte Final */
+        .report-paper { background: #fff; color: #000; padding: 50px; font-family: 'Times New Roman', serif; display: none; margin-top: 20px; position: relative; }
+        .watermark { position: absolute; top: 40%; left: 10%; font-size: 60px; color: rgba(0,0,0,0.05); transform: rotate(-45deg); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <strong style="color:var(--acc); letter-spacing:3px;">AGI GLOBAL INTELLIGENCE SUITE</strong><br>
+        <div style="margin-top: 10px;">
+            <button class="nav-btn" onclick="switchView('client-view')">PORTAL CLIENTE</button>
+            <button class="nav-btn" onclick="switchView('admin-view')">CONSOLA DE MANDO (IA)</button>
         </div>
-        <div class="agent-bar-row">
-            <span style="width:120px;">Agente Desanonización (ZKP)</span>
-            <div class="bar-bg"><div class="bar-fill" style="width: 78%; background: var(--warn);"></div></div>
-            <span>78% Eff.</span>
+    </header>
+
+    <div id="client-view" class="view-section active-view">
+        <div class="client-card">
+            <h2 style="color:var(--acc)">Validación de Activos NIA-240</h2>
+            <p style="font-size: 12px; color: var(--gray);">Declare el capital para asignar el nivel de infraestructura forense.</p>
+            <input type="text" id="c-name" placeholder="Nombre Completo o Razón Social">
+            <input type="text" id="c-hash" placeholder="Hash del Activo / ID Transacción">
+            <input type="number" id="c-amount" placeholder="Monto del Activo (USD)">
+            <button class="btn-main" onclick="processClient()">Generar Contrato Inmutable</button>
         </div>
-        <div class="agent-bar-row">
-            <span style="width:120px;">Agente Cross-Chain (Bridge)</span>
-            <div class="bar-bg"><div class="bar-fill" style="width: 89%;"></div></div>
-            <span>89% Eff.</span>
+
+        <div id="report-view" class="report-paper">
+            <div class="watermark">AGI CERTIFIED EVIDENCE</div>
+            <h1 style="border-bottom: 2px solid #000;">CARTA CONVENIO PERICIAL</h1>
+            <p><strong>CLIENTE:</strong> <span id="out-name"></span></p>
+            <p><strong>ACTIVO:</strong> <span id="out-hash"></span></p>
+            <div id="fee-details" style="background: #f4f4f4; padding: 20px; border-left: 5px solid var(--acc); margin: 20px 0;"></div>
+            <p style="font-size: 11px;">Este documento incluye <b>Marca de Agua Forense Invisible</b> vinculada a su identidad para prevenir filtraciones (ISO-27037).</p>
+            <button class="btn-main" style="background:#000" onclick="window.print()">Descargar Documento Sellado</button>
         </div>
     </div>
-</div>
+
+    <div id="admin-view" class="view-section">
+        <div class="dashboard">
+            <div class="stat-card"><div class="stat-val" id="roi-val">$0</div><div class="stat-lbl">Recuperación Proyectada</div></div>
+            <div class="stat-card"><div class="stat-val" id="prob-val">0%</div><div class="stat-lbl">Certeza de Atribución</div></div>
+            <div class="stat-card"><div class="stat-val">ACTIVE</div><div class="stat-lbl">Cloud Infrastructure</div></div>
+            <div class="stat-card"><div class="stat-val">ISO-27037</div><div class="stat-lbl">Compliance Status</div></div>
+        </div>
+
+        <div class="console-grid">
+            <div id="radar">
+                <div style="position:absolute; color:var(--ia-green); font-size:10px; padding:10px;">GNN PREDICTIVE RADAR ACTIVE...</div>
+            </div>
+            <div class="terminal" id="term-logs">
+                [SYS]: Esperando despliegue de agentes investigadores...
+            </div>
+        </div>
+        <button class="btn-main" style="background: var(--ia-green); color: #000;" onclick="runDemo()">EJECUTAR MODO DEMO (SCENARIO 01)</button>
+    </div>
+
+    <script>
+        // Navegación de Vistas
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
+            document.getElementById(viewId).classList.add('active-view');
+        }
+
+        // Lógica de Cliente y Honorarios
+        function processClient() {
+            const name = document.getElementById('c-name').value;
+            const amt = parseFloat(document.getElementById('c-amount').value);
+            const hash = document.getElementById('c-hash').value;
+
+            if(!name || isNaN(amt)) return alert("Por favor complete los datos.");
+
+            let level = "I", fee = 2100, success = "3%";
+            if(amt > 50000 && amt <= 250000) { level="II"; fee=5750; success="5%"; }
+            else if(amt > 250000) { level="III"; fee=13250; success="10%"; }
+
+            document.getElementById('out-name').innerText = name;
+            document.getElementById('out-hash').innerText = hash;
+            document.getElementById('fee-details').innerHTML = `
+                <h3>Protocolo Nivel ${level}</h3>
+                <p>Anticipo de Infraestructura: $1,750.00 USD</p>
+                <p>Honorarios Periciales: $${fee.toLocaleString()}.00 USD</p>
+                <p><b>Bono por Éxito (Recuperación): ${success}</b></p>
+            `;
+            document.getElementById('report-view').style.display = 'block';
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        // Lógica de Consola y Modo Demo
+        async function runDemo() {
+            const term = document.getElementById('term-logs');
+            const radar = document.getElementById('radar');
+            const logs = [
+                "Desplegando agentes en infraestructura Cloud...",
+                "Detectando salto Cross-Chain (Bridge Wormhole)...",
+                "Analizando Fingerprinting de Estilo en Mixer...",
+                "Inconsistencia de Privacidad detectada en ZKP...",
+                "Atribución completada: Actor identificado como 'Alpha-Red'.",
+                "Sellando evidencia en Sidechain de custodia."
+            ];
+
+            radar.innerHTML = '';
+            for(let i=0; i<logs.length; i++) {
+                term.innerHTML += `<div>> ${logs[i]}</div>`;
+                term.scrollTop = term.scrollHeight;
+                
+                // Crear nodos visuales
+                let n = document.createElement('div');
+                n.className = 'node';
+                n.style.left = Math.random()*80 + 10 + '%';
+                n.style.top = Math.random()*80 + 10 + '%';
+                radar.appendChild(n);
+
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            document.getElementById('roi-val').innerText = "$450,000";
+            document.getElementById('prob-val').innerText = "94.2%";
+            alert("Investigación de IA Finalizada.");
+        }
+    </script>
+</body>
+</html>
