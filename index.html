@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGI - Global Intelligence Suite v5.2 | Neural Fingerprint</title>
+    <title>AGI - Global Intelligence Suite v5.3 | Cloud Burst</title>
     <style>
         :root { --bg: #010409; --acc: #3b82f6; --ia-green: #00ff41; --danger: #ff3e3e; --gray: #8b949e; --text: #f0f6fc; --card: #0d1117; }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; overflow-x: hidden; }
@@ -15,25 +15,24 @@
         .active-view { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Dashboard superior */
+        /* Dashboard de Infraestructura */
         .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: var(--card); border: 1px solid #333; padding: 20px; border-left: 4px solid var(--acc); border-radius: 4px; }
+        .stat-card { background: var(--card); border: 1px solid #333; padding: 20px; border-left: 4px solid var(--acc); border-radius: 4px; position: relative; }
         .stat-val { font-size: 24px; font-weight: bold; color: var(--acc); }
         .stat-lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; }
+        .load-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--ia-green); width: 0%; transition: width 1s ease; }
 
-        /* Consola de Inteligencia */
+        /* Consola y Radar */
         .console-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: 500px; }
         #radar { background: radial-gradient(circle, #001529 0%, #000 100%); border: 1px solid #333; position: relative; overflow: hidden; border-radius: 8px; }
         .terminal { background: #000; border: 1px solid #333; padding: 20px; color: var(--ia-green); font-size: 11px; overflow-y: auto; border-radius: 8px; border-top: 2px solid var(--acc); line-height: 1.6; }
         
-        /* DOSSIER PERICIAL */
+        /* Dossier Pericial */
         .dossier-overlay { display: none; background: white; color: black; padding: 50px; font-family: 'Times New Roman', serif; border-radius: 8px; margin-top: 30px; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .dossier-header { border-bottom: 3px solid #000; display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .dossier-section { margin-bottom: 25px; border-left: 3px solid #ccc; padding-left: 15px; }
-        .dossier-title { font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 5px; display: block; }
-
+        
         .btn-main { background: var(--acc); color: #fff; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; border-radius: 6px; }
-        .node { position: absolute; width: 12px; height: 12px; background: var(--ia-green); border-radius: 50%; box-shadow: 0 0 15px var(--ia-green); z-index: 5; }
+        .node { position: absolute; width: 6px; height: 6px; background: var(--acc); border-radius: 50%; box-shadow: 0 0 8px var(--acc); transition: all 0.5s ease; }
+        .active-burst { background: var(--ia-green); box-shadow: 0 0 15px var(--ia-green); transform: scale(1.5); }
 
         @media print { .no-print, header, .dashboard, .console-grid, .btn-main { display: none !important; } .dossier-overlay { display: block !important; margin: 0; box-shadow: none; } }
     </style>
@@ -41,7 +40,7 @@
 <body>
 
     <header class="no-print">
-        <strong style="color:var(--acc); letter-spacing:4px;">AGI GLOBAL INTELLIGENCE v5.2</strong><br>
+        <strong style="color:var(--acc); letter-spacing:4px;">AUDIT GLOBAL INTELLIGENCE v5.3</strong><br>
         <div style="margin-top: 15px;">
             <button class="nav-btn" onclick="switchView('client-view')">PORTAL CLIENTE</button>
             <button class="nav-btn" onclick="switchView('admin-view')">CONSOLA DE MANDO IA</button>
@@ -50,61 +49,48 @@
 
     <div id="client-view" class="view-section active-view">
         <div style="text-align: center; max-width: 600px; margin: 0 auto; background: var(--card); padding: 40px; border-radius: 12px; border: 1px solid #333;">
-            <h2 style="color:var(--acc)">Intervención de Activos</h2>
-            <input type="text" id="c-name" placeholder="Titular del Activo">
-            <input type="number" id="c-amount" placeholder="Monto a Recuperar (USD)">
-            <input type="text" id="c-hash" placeholder="Hash/Wallet Objetivo">
-            <button class="btn-main" onclick="processClient()">Activar Protocolo NIA-240</button>
+            <h2 style="color:var(--acc)">Gestión de Intervención</h2>
+            <input type="text" id="c-name" placeholder="Titular Legal">
+            <input type="number" id="c-amount" placeholder="Monto Total USD">
+            <input type="text" id="c-hash" placeholder="Wallet ID / Hash">
+            <button class="btn-main" onclick="processClient()">Inicializar Protocolo Forense</button>
         </div>
     </div>
 
     <div id="admin-view" class="view-section">
         <div class="dashboard no-print">
-            <div class="stat-card"><div class="stat-val" id="roi-val">$0</div><div class="stat-lbl">Capital Trazado</div></div>
-            <div class="stat-card"><div class="stat-val" id="prob-val">0%</div><div class="stat-lbl">Confianza Atribución</div></div>
-            <div class="stat-card" style="border-color: var(--ia-green);"><div class="stat-val">CERTIFIED</div><div class="stat-lbl">ISO 27037:2026</div></div>
-            <div class="stat-card"><div class="stat-val" id="cloud-load">LOW</div><div class="stat-lbl">Carga Agencial</div></div>
+            <div class="stat-card">
+                <div class="stat-val" id="roi-val">$0</div>
+                <div class="stat-lbl">Análisis de Capital</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="prob-val">0%</div>
+                <div class="stat-lbl">Confianza ID</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="node-count">12</div>
+                <div class="stat-lbl">Nodos Activos</div>
+                <div id="node-bar" class="load-bar"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="cloud-status">IDLE</div>
+                <div class="stat-lbl">Estado de Infraestructura</div>
+            </div>
         </div>
 
         <div class="console-grid no-print">
             <div id="radar"></div>
-            <div class="terminal" id="term-logs">> AGI Cloud Ready. Waiting for Neural Analysis...</div>
+            <div class="terminal" id="term-logs">> AGI Cloud Engine: Standby Mode.</div>
         </div>
-        <button class="btn-main no-print" style="margin-top:20px; background: var(--ia-green); color:black;" onclick="runNeuralInvestigation()">Iniciar Atribución por Estilo (Style Fingerprinting)</button>
+        <button class="btn-main no-print" style="margin-top:20px; background: var(--acc); color:white;" onclick="runCloudBurstInvestigation()">Ejecutar Rastreo de Alta Complejidad</button>
 
         <div id="dossier-pericial" class="dossier-overlay">
-            <div class="dossier-header">
-                <div>
-                    <h1 style="margin:0;">AGI: DOSSIER PERICIAL</h1>
-                    <p style="font-size:12px;">INFORME TÉCNICO DE TRAZABILIDAD Y ATRIBUCIÓN</p>
-                </div>
-                <div style="text-align:right;">
-                    <p><strong>FECHA:</strong> 15 ABRIL 2026<br><strong>REF:</strong> ISO/IEC 27037:2026</p>
-                </div>
-            </div>
-
-            <div class="dossier-section">
-                <span class="dossier-title">1. Identificación del Objetivo</span>
-                <p><strong>Titular:</strong> <span id="rep-name"></span></p>
-                <p><strong>Wallet Principal:</strong> <span id="rep-hash" style="font-family:monospace;"></span></p>
-            </div>
-
-            <div class="dossier-section">
-                <span class="dossier-title">2. Análisis de Style Fingerprinting</span>
-                <p id="rep-forensics">
-                    El motor de IA identificó una coincidencia de conducta del <b>98.7%</b>. <br>
-                    - <b>Latencia:</b> 45ms (Triangulación Belgrado/Balcanes).<br>
-                    - <b>Patrón de Gas:</b> Prioridad agresiva (Consistente con Nikolai_88).<br>
-                    - <b>Interacción DeFi:</b> Uso recurrente de mixers en lotes de 10 ETH.
-                </p>
-            </div>
-
-            <div class="dossier-section">
-                <span class="dossier-title">3. Identidad Real Atribuida</span>
-                <p><strong>Sujeto:</strong> Nikolai V. [Identificado mediante cruce semántico en BreachForums]</p>
-            </div>
-
-            <button class="btn-main no-print" style="background:#000" onclick="window.print()">Emitir Certificación Oficial</button>
+            <h1 style="border-bottom: 2px solid #000;">DOSSIER DE EVIDENCIA FINAL</h1>
+            <p><strong>REPRESENTANTE:</strong> <span id="rep-name"></span></p>
+            <p><strong>OBJETIVO:</strong> <span id="rep-hash"></span></p>
+            <p><strong>ATRIBUCIÓN:</strong> Identidad Nikolai V. (Belgrado) validada mediante Style Fingerprinting.</p>
+            <p><strong>INFRAESTRUCTURA:</strong> Despliegue de 128 nodos cloud para ruptura de privacidad.</p>
+            <button class="btn-main no-print" style="background:#000" onclick="window.print()">Imprimir Reporte Certificado</button>
         </div>
     </div>
 
@@ -115,43 +101,55 @@
         }
 
         function processClient() {
-            const name = document.getElementById('c-name').value;
-            const amt = document.getElementById('c-amount').value;
-            const hash = document.getElementById('c-hash').value;
-            if(!name || !amt) return alert("Complete los datos.");
-            document.getElementById('rep-name').innerText = name;
-            document.getElementById('rep-hash').innerText = hash;
+            document.getElementById('rep-name').innerText = document.getElementById('c-name').value;
+            document.getElementById('rep-hash').innerText = document.getElementById('c-hash').value;
             switchView('admin-view');
         }
 
-        async function runNeuralInvestigation() {
+        async function runCloudBurstInvestigation() {
             const term = document.getElementById('term-logs');
             const radar = document.getElementById('radar');
-            const steps = [
-                { m: "Extrayendo entropía de transacciones...", c: 'var(--ia-green)' },
-                { m: "Midiendo latencia de red (Triangulación de Nodo)...", c: 'var(--ia-green)' },
-                { m: "LATENCIA: 45ms. Ubicación probable: Belgrado, Serbia.", c: 'var(--acc)' },
-                { m: "Analizando 'Gas Price Habit'. Patrón de urgencia detectado.", c: 'var(--ia-green)' },
-                { m: "Cruce semántico con BreachForums iniciado...", c: 'var(--ia-green)' },
-                { m: "COINCIDENCIA: Estilo gramatical y wallet vinculados a 'Nikolai_88'.", c: '#ffa500' },
-                { m: "ATRIBUCIÓN FINALIZADA: Nikolai V. identificado con 98.7% certeza.", c: 'var(--danger)' }
-            ];
+            const nodeVal = document.getElementById('node-count');
+            const nodeBar = document.getElementById('node-bar');
+            const status = document.getElementById('cloud-status');
 
+            term.innerHTML = "> Detectando complejidad de Nivel III...";
             radar.innerHTML = '';
-            for(let step of steps) {
-                term.innerHTML += `<div style="color:${step.c}">> ${step.m}</div>`;
-                term.scrollTop = term.scrollHeight;
-                
+            
+            // Crear Nodos Iniciales
+            for(let i=0; i<30; i++) {
                 let n = document.createElement('div');
                 n.className = 'node';
-                n.style.left = Math.random()*80+10+'%'; n.style.top = Math.random()*80+10+'%';
+                n.style.left = Math.random()*95+'%'; n.style.top = Math.random()*95+'%';
                 radar.appendChild(n);
-                await new Promise(r => setTimeout(r, 1500));
             }
 
-            document.getElementById('roi-val').innerText = "$" + document.getElementById('c-amount').value;
+            const steps = [
+                { m: "Escalando infraestructura: Activando Cluster Alpha...", nodes: 32, load: 30, st: "SCALING" },
+                { m: "Cluster Beta Online: Procesando 1.2M de eventos/seg.", nodes: 64, load: 60, st: "BURSTING" },
+                { m: "Ruptura de Privacidad ZKP en curso. Carga máxima.", nodes: 128, load: 100, st: "PEAK LOAD" },
+                { m: "Analizando Style Fingerprinting en Nikolai V...", nodes: 128, load: 100, st: "ATRIBUTING" },
+                { m: "Investigación completada. Liberando recursos cloud.", nodes: 12, load: 10, st: "COMPLETED" }
+            ];
+
+            for(let step of steps) {
+                term.innerHTML += `<div style="color:var(--ia-green)">> ${step.m}</div>`;
+                term.scrollTop = term.scrollHeight;
+                nodeVal.innerText = step.nodes;
+                nodeBar.style.width = step.load + '%';
+                status.innerText = step.st;
+                
+                // Efecto visual en los nodos
+                document.querySelectorAll('.node').forEach(n => {
+                    if(Math.random() > 0.5) n.classList.add('active-burst');
+                    else n.classList.remove('active-burst');
+                });
+
+                await new Promise(r => setTimeout(r, 1800));
+            }
+
+            document.getElementById('roi-val').innerText = "$" + (parseFloat(document.getElementById('c-amount').value || 0)).toLocaleString();
             document.getElementById('prob-val').innerText = "98.7%";
-            document.getElementById('cloud-load').innerText = "ANALYSIS COMPLETE";
             document.getElementById('dossier-pericial').style.display = 'block';
             window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
         }
