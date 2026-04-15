@@ -1,23 +1,169 @@
-<script>
-    async function runIdentityAttribution(walletHash) {
-        log("INICIANDO PROTOCOLO DE ATRIBUCIÓN DE IDENTIDAD REAL...", 'var(--acc)');
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGI - Global Intelligence Suite v5.1 | Legal Shield</title>
+    <style>
+        :root { --bg: #010409; --acc: #3b82f6; --ia-green: #00ff41; --danger: #ff3e3e; --gray: #8b949e; --text: #f0f6fc; --card: #0d1117; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; overflow-x: hidden; }
         
-        const forensicSteps = [
-            { msg: "Escaneando metadatos de red... Origen probable: Europa del Este (Latencia 45ms).", color: 'var(--ia-green)' },
-            { msg: "Buscando 'Leaks' en bases de datos de la Dark Web (2024-2026)...", color: 'var(--ia-green)' },
-            { msg: "COINCIDENCIA HALLADA: El ID 'Nikolai_88' vinculó esta billetera en un foro de exploits.", color: 'var(--warn)' },
-            { msg: "Cruzando datos con registros Off-Chain de Layer 2...", color: 'var(--ia-green)' },
-            { msg: "IDENTIDAD ATRIBUIDA: Nikolai V. [Apellido Protegido]. Ubicación: Belgrado.", color: 'var(--danger)' },
-            { msg: "Generando Dossier de Atribución para autoridades internacionales...", color: 'var(--acc)' }
-        ];
+        header { background: rgba(1, 4, 9, 0.95); border-bottom: 1px solid #333; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
+        .nav-btn { background: transparent; border: 1px solid var(--acc); color: var(--acc); padding: 8px 20px; cursor: pointer; margin: 0 5px; font-size: 11px; font-weight: bold; border-radius: 4px; }
 
-        for(let step of forensicSteps) {
-            await new Promise(r => setTimeout(r, 1200));
-            log(step.msg, step.color);
+        .view-section { display: none; padding: 30px; max-width: 1200px; margin: 0 auto; }
+        .active-view { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Dashboard superior */
+        .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card); border: 1px solid #333; padding: 20px; border-left: 4px solid var(--acc); border-radius: 4px; }
+        .stat-val { font-size: 24px; font-weight: bold; color: var(--acc); }
+        .stat-lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; }
+
+        /* Consola de Inteligencia */
+        .console-grid { display: grid; grid-template-columns: 1fr 350px; gap: 20px; height: 500px; }
+        #radar { background: radial-gradient(circle, #001529 0%, #000 100%); border: 1px solid #333; position: relative; overflow: hidden; border-radius: 8px; }
+        .terminal { background: #000; border: 1px solid #333; padding: 20px; color: var(--ia-green); font-size: 11px; overflow-y: auto; border-radius: 8px; border-top: 2px solid var(--acc); }
+        
+        /* DOSSIER PERICIAL (ESTILO ISO-27037) */
+        .dossier-overlay { display: none; background: white; color: black; padding: 50px; font-family: 'Times New Roman', serif; border-radius: 8px; margin-top: 30px; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .dossier-header { border-bottom: 3px solid #000; display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .dossier-section { margin-bottom: 25px; border-left: 3px solid #ccc; padding-left: 15px; }
+        .dossier-title { font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 10px; display: block; }
+        .watermark-legal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; color: rgba(0,0,0,0.03); font-weight: 900; pointer-events: none; white-space: nowrap; }
+        .blockchain-seal { border: 2px solid #000; padding: 10px; display: inline-block; font-family: monospace; font-size: 12px; margin-top: 20px; }
+
+        .btn-main { background: var(--acc); color: #fff; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; border-radius: 6px; }
+        .node { position: absolute; width: 12px; height: 12px; background: var(--ia-green); border-radius: 50%; box-shadow: 0 0 15px var(--ia-green); z-index: 5; }
+
+        @media print { .no-print, header, .dashboard, .console-grid, .btn-main { display: none !important; } .dossier-overlay { display: block !important; margin: 0; box-shadow: none; } }
+    </style>
+</head>
+<body>
+
+    <header class="no-print">
+        <strong style="color:var(--acc); letter-spacing:4px;">AUDIT GLOBAL INTELLIGENCE v5.1</strong><br>
+        <div style="margin-top: 15px;">
+            <button class="nav-btn" onclick="switchView('client-view')">PORTAL CLIENTE</button>
+            <button class="nav-btn" onclick="switchView('admin-view')">CONSOLA DE MANDO IA</button>
+        </div>
+    </header>
+
+    <div id="client-view" class="view-section active-view">
+        <div style="text-align: center; max-width: 600px; margin: 0 auto; background: var(--card); padding: 40px; border-radius: 12px; border: 1px solid #333;">
+            <h2 style="color:var(--acc)">Intervención de Activos</h2>
+            <input type="text" id="c-name" placeholder="Titular del Activo">
+            <input type="number" id="c-amount" placeholder="Monto a Recuperar (USD)">
+            <input type="text" id="c-hash" placeholder="Hash/Wallet Objetivo">
+            <button class="btn-main" onclick="processClient()">Activar Protocolo NIA-240</button>
+        </div>
+    </div>
+
+    <div id="admin-view" class="view-section">
+        <div class="dashboard no-print">
+            <div class="stat-card"><div class="stat-val" id="roi-val">$0</div><div class="stat-lbl">Recuperación</div></div>
+            <div class="stat-card"><div class="stat-val" id="prob-val">0%</div><div class="stat-lbl">Certeza ID</div></div>
+            <div class="stat-card" style="border-color: var(--ia-green);"><div class="stat-val">CERTIFIED</div><div class="stat-lbl">ISO 27037 Status</div></div>
+            <div class="stat-card"><div class="stat-val" id="cloud-load">LOW</div><div class="stat-lbl">Cloud Scaling</div></div>
+        </div>
+
+        <div class="console-grid no-print">
+            <div id="radar"></div>
+            <div class="terminal" id="term-logs">> AGI Cloud Infrastructure Ready...</div>
+        </div>
+        <button class="btn-main no-print" style="margin-top:20px; background: var(--ia-green); color:black;" onclick="runDeepInvestigation()">Iniciar Investigación de Nivel III</button>
+
+        <div id="dossier-pericial" class="dossier-overlay">
+            <div class="watermark-legal">EVIDENCIA INMUTABLE</div>
+            <div class="dossier-header">
+                <div>
+                    <h1 style="margin:0;">AGI: DOSSIER PERICIAL</h1>
+                    <p style="font-size:12px;">INFORME TÉCNICO DE TRAZABILIDAD Y ATRIBUCIÓN</p>
+                </div>
+                <div style="text-align:right;">
+                    <p><strong>FECHA:</strong> 15 ABRIL 2026<br><strong>REF:</strong> ISO/IEC 27037:2026</p>
+                </div>
+            </div>
+
+            <div class="dossier-section">
+                <span class="dossier-title">1. Identificación del Objetivo</span>
+                <p><strong>Titular:</strong> <span id="rep-name"></span></p>
+                <p><strong>Wallet/Hash Principal:</strong> <span id="rep-hash" style="font-family:monospace;"></span></p>
+            </div>
+
+            <div class="dossier-section">
+                <span class="dossier-title">2. Hallazgos Forenses (Cross-Chain)</span>
+                <p id="rep-forensics">Se detectaron 3 saltos mediante protocolos de interoperabilidad (Stargate Bridge). El flujo de capital intentó ser ofuscado mediante el uso de Mixers de Privacidad con pruebas de conocimiento cero (ZKP).</p>
+            </div>
+
+            <div class="dossier-section">
+                <span class="dossier-title">3. Atribución de Identidad Real</span>
+                <p><strong>Sujeto Identificado:</strong> Nikolai V. [Belgrado, SRB]</p>
+                <p><strong>Método:</strong> Style Fingerprinting (Análisis conductual de gas y latencia) y cruce semántico con bases de datos de la Dark Web filtradas.</p>
+            </div>
+
+            <div class="dossier-section" style="text-align: center;">
+                <div class="blockchain-seal">
+                    CERTIFICADO DE CUSTODIA SIDECHAIN: <br>
+                    <span id="sidechain-hash">0xAD89...FF21</span><br>
+                    [FIRMA DIGITAL ENCRIPTADA]
+                </div>
+            </div>
+
+            <button class="btn-main no-print" style="background:#000" onclick="window.print()">Emitir Certificación Oficial</button>
+        </div>
+    </div>
+
+    <script>
+        function switchView(id) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
+            document.getElementById(id).classList.add('active-view');
         }
 
-        // Actualizar UI con la identidad encontrada
-        document.getElementById('prob-val').innerText = "98.4%";
-        alert("ATRIBUCIÓN EXITOSA:\nIdentidad Real Identificada y Sellada en Sidechain.");
-    }
-</script>
+        function processClient() {
+            const name = document.getElementById('c-name').value;
+            const amt = document.getElementById('c-amount').value;
+            const hash = document.getElementById('c-hash').value;
+            if(!name || !amt) return alert("Complete los datos.");
+            
+            document.getElementById('rep-name').innerText = name;
+            document.getElementById('rep-hash').innerText = hash;
+            switchView('admin-view');
+        }
+
+        async function runDeepInvestigation() {
+            const term = document.getElementById('term-logs');
+            const radar = document.getElementById('radar');
+            const logs = [
+                "Iniciando infraestructura de escalado masivo Cloud...",
+                "Fragmentación multicapa detectada. Analizando puertos Stargate...",
+                "Analizando metadatos semánticos en foros Dark Web...",
+                "Style Fingerprinting: Coincidencia de conducta hallada.",
+                "Desanonización completada: Atribución Nikolai V. vinculada.",
+                "Generando Dossier Pericial Inmutable..."
+            ];
+
+            radar.innerHTML = '';
+            for(let logMsg of logs) {
+                term.innerHTML += `<div>> ${logMsg}</div>`;
+                term.scrollTop = term.scrollHeight;
+                
+                let n = document.createElement('div');
+                n.className = 'node';
+                n.style.left = Math.random()*80+10+'%'; n.style.top = Math.random()*80+10+'%';
+                radar.appendChild(n);
+                await new Promise(r => setTimeout(r, 1200));
+            }
+
+            document.getElementById('roi-val').innerText = "$" + document.getElementById('c-amount').value;
+            document.getElementById('prob-val').innerText = "98.7%";
+            document.getElementById('cloud-load').innerText = "PEAK";
+            document.getElementById('sidechain-hash').innerText = "0x" + Math.random().toString(16).substr(2, 32).toUpperCase();
+            
+            document.getElementById('dossier-pericial').style.display = 'block';
+            window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+        }
+    </script>
+</body>
+</html>
