@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGI - Global Intelligence Suite v5.1 | Legal Shield</title>
+    <title>AGI - Global Intelligence Suite v5.2 | Neural Fingerprint</title>
     <style>
         :root { --bg: #010409; --acc: #3b82f6; --ia-green: #00ff41; --danger: #ff3e3e; --gray: #8b949e; --text: #f0f6fc; --card: #0d1117; }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; overflow-x: hidden; }
@@ -22,17 +22,15 @@
         .stat-lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; }
 
         /* Consola de Inteligencia */
-        .console-grid { display: grid; grid-template-columns: 1fr 350px; gap: 20px; height: 500px; }
+        .console-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: 500px; }
         #radar { background: radial-gradient(circle, #001529 0%, #000 100%); border: 1px solid #333; position: relative; overflow: hidden; border-radius: 8px; }
-        .terminal { background: #000; border: 1px solid #333; padding: 20px; color: var(--ia-green); font-size: 11px; overflow-y: auto; border-radius: 8px; border-top: 2px solid var(--acc); }
+        .terminal { background: #000; border: 1px solid #333; padding: 20px; color: var(--ia-green); font-size: 11px; overflow-y: auto; border-radius: 8px; border-top: 2px solid var(--acc); line-height: 1.6; }
         
-        /* DOSSIER PERICIAL (ESTILO ISO-27037) */
+        /* DOSSIER PERICIAL */
         .dossier-overlay { display: none; background: white; color: black; padding: 50px; font-family: 'Times New Roman', serif; border-radius: 8px; margin-top: 30px; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
         .dossier-header { border-bottom: 3px solid #000; display: flex; justify-content: space-between; margin-bottom: 30px; }
         .dossier-section { margin-bottom: 25px; border-left: 3px solid #ccc; padding-left: 15px; }
-        .dossier-title { font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 10px; display: block; }
-        .watermark-legal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; color: rgba(0,0,0,0.03); font-weight: 900; pointer-events: none; white-space: nowrap; }
-        .blockchain-seal { border: 2px solid #000; padding: 10px; display: inline-block; font-family: monospace; font-size: 12px; margin-top: 20px; }
+        .dossier-title { font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 5px; display: block; }
 
         .btn-main { background: var(--acc); color: #fff; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; border-radius: 6px; }
         .node { position: absolute; width: 12px; height: 12px; background: var(--ia-green); border-radius: 50%; box-shadow: 0 0 15px var(--ia-green); z-index: 5; }
@@ -43,7 +41,7 @@
 <body>
 
     <header class="no-print">
-        <strong style="color:var(--acc); letter-spacing:4px;">AUDIT GLOBAL INTELLIGENCE v5.1</strong><br>
+        <strong style="color:var(--acc); letter-spacing:4px;">AGI GLOBAL INTELLIGENCE v5.2</strong><br>
         <div style="margin-top: 15px;">
             <button class="nav-btn" onclick="switchView('client-view')">PORTAL CLIENTE</button>
             <button class="nav-btn" onclick="switchView('admin-view')">CONSOLA DE MANDO IA</button>
@@ -62,20 +60,19 @@
 
     <div id="admin-view" class="view-section">
         <div class="dashboard no-print">
-            <div class="stat-card"><div class="stat-val" id="roi-val">$0</div><div class="stat-lbl">Recuperación</div></div>
-            <div class="stat-card"><div class="stat-val" id="prob-val">0%</div><div class="stat-lbl">Certeza ID</div></div>
-            <div class="stat-card" style="border-color: var(--ia-green);"><div class="stat-val">CERTIFIED</div><div class="stat-lbl">ISO 27037 Status</div></div>
-            <div class="stat-card"><div class="stat-val" id="cloud-load">LOW</div><div class="stat-lbl">Cloud Scaling</div></div>
+            <div class="stat-card"><div class="stat-val" id="roi-val">$0</div><div class="stat-lbl">Capital Trazado</div></div>
+            <div class="stat-card"><div class="stat-val" id="prob-val">0%</div><div class="stat-lbl">Confianza Atribución</div></div>
+            <div class="stat-card" style="border-color: var(--ia-green);"><div class="stat-val">CERTIFIED</div><div class="stat-lbl">ISO 27037:2026</div></div>
+            <div class="stat-card"><div class="stat-val" id="cloud-load">LOW</div><div class="stat-lbl">Carga Agencial</div></div>
         </div>
 
         <div class="console-grid no-print">
             <div id="radar"></div>
-            <div class="terminal" id="term-logs">> AGI Cloud Infrastructure Ready...</div>
+            <div class="terminal" id="term-logs">> AGI Cloud Ready. Waiting for Neural Analysis...</div>
         </div>
-        <button class="btn-main no-print" style="margin-top:20px; background: var(--ia-green); color:black;" onclick="runDeepInvestigation()">Iniciar Investigación de Nivel III</button>
+        <button class="btn-main no-print" style="margin-top:20px; background: var(--ia-green); color:black;" onclick="runNeuralInvestigation()">Iniciar Atribución por Estilo (Style Fingerprinting)</button>
 
         <div id="dossier-pericial" class="dossier-overlay">
-            <div class="watermark-legal">EVIDENCIA INMUTABLE</div>
             <div class="dossier-header">
                 <div>
                     <h1 style="margin:0;">AGI: DOSSIER PERICIAL</h1>
@@ -89,26 +86,22 @@
             <div class="dossier-section">
                 <span class="dossier-title">1. Identificación del Objetivo</span>
                 <p><strong>Titular:</strong> <span id="rep-name"></span></p>
-                <p><strong>Wallet/Hash Principal:</strong> <span id="rep-hash" style="font-family:monospace;"></span></p>
+                <p><strong>Wallet Principal:</strong> <span id="rep-hash" style="font-family:monospace;"></span></p>
             </div>
 
             <div class="dossier-section">
-                <span class="dossier-title">2. Hallazgos Forenses (Cross-Chain)</span>
-                <p id="rep-forensics">Se detectaron 3 saltos mediante protocolos de interoperabilidad (Stargate Bridge). El flujo de capital intentó ser ofuscado mediante el uso de Mixers de Privacidad con pruebas de conocimiento cero (ZKP).</p>
+                <span class="dossier-title">2. Análisis de Style Fingerprinting</span>
+                <p id="rep-forensics">
+                    El motor de IA identificó una coincidencia de conducta del <b>98.7%</b>. <br>
+                    - <b>Latencia:</b> 45ms (Triangulación Belgrado/Balcanes).<br>
+                    - <b>Patrón de Gas:</b> Prioridad agresiva (Consistente con Nikolai_88).<br>
+                    - <b>Interacción DeFi:</b> Uso recurrente de mixers en lotes de 10 ETH.
+                </p>
             </div>
 
             <div class="dossier-section">
-                <span class="dossier-title">3. Atribución de Identidad Real</span>
-                <p><strong>Sujeto Identificado:</strong> Nikolai V. [Belgrado, SRB]</p>
-                <p><strong>Método:</strong> Style Fingerprinting (Análisis conductual de gas y latencia) y cruce semántico con bases de datos de la Dark Web filtradas.</p>
-            </div>
-
-            <div class="dossier-section" style="text-align: center;">
-                <div class="blockchain-seal">
-                    CERTIFICADO DE CUSTODIA SIDECHAIN: <br>
-                    <span id="sidechain-hash">0xAD89...FF21</span><br>
-                    [FIRMA DIGITAL ENCRIPTADA]
-                </div>
+                <span class="dossier-title">3. Identidad Real Atribuida</span>
+                <p><strong>Sujeto:</strong> Nikolai V. [Identificado mediante cruce semántico en BreachForums]</p>
             </div>
 
             <button class="btn-main no-print" style="background:#000" onclick="window.print()">Emitir Certificación Oficial</button>
@@ -126,41 +119,39 @@
             const amt = document.getElementById('c-amount').value;
             const hash = document.getElementById('c-hash').value;
             if(!name || !amt) return alert("Complete los datos.");
-            
             document.getElementById('rep-name').innerText = name;
             document.getElementById('rep-hash').innerText = hash;
             switchView('admin-view');
         }
 
-        async function runDeepInvestigation() {
+        async function runNeuralInvestigation() {
             const term = document.getElementById('term-logs');
             const radar = document.getElementById('radar');
-            const logs = [
-                "Iniciando infraestructura de escalado masivo Cloud...",
-                "Fragmentación multicapa detectada. Analizando puertos Stargate...",
-                "Analizando metadatos semánticos en foros Dark Web...",
-                "Style Fingerprinting: Coincidencia de conducta hallada.",
-                "Desanonización completada: Atribución Nikolai V. vinculada.",
-                "Generando Dossier Pericial Inmutable..."
+            const steps = [
+                { m: "Extrayendo entropía de transacciones...", c: 'var(--ia-green)' },
+                { m: "Midiendo latencia de red (Triangulación de Nodo)...", c: 'var(--ia-green)' },
+                { m: "LATENCIA: 45ms. Ubicación probable: Belgrado, Serbia.", c: 'var(--acc)' },
+                { m: "Analizando 'Gas Price Habit'. Patrón de urgencia detectado.", c: 'var(--ia-green)' },
+                { m: "Cruce semántico con BreachForums iniciado...", c: 'var(--ia-green)' },
+                { m: "COINCIDENCIA: Estilo gramatical y wallet vinculados a 'Nikolai_88'.", c: '#ffa500' },
+                { m: "ATRIBUCIÓN FINALIZADA: Nikolai V. identificado con 98.7% certeza.", c: 'var(--danger)' }
             ];
 
             radar.innerHTML = '';
-            for(let logMsg of logs) {
-                term.innerHTML += `<div>> ${logMsg}</div>`;
+            for(let step of steps) {
+                term.innerHTML += `<div style="color:${step.c}">> ${step.m}</div>`;
                 term.scrollTop = term.scrollHeight;
                 
                 let n = document.createElement('div');
                 n.className = 'node';
                 n.style.left = Math.random()*80+10+'%'; n.style.top = Math.random()*80+10+'%';
                 radar.appendChild(n);
-                await new Promise(r => setTimeout(r, 1200));
+                await new Promise(r => setTimeout(r, 1500));
             }
 
             document.getElementById('roi-val').innerText = "$" + document.getElementById('c-amount').value;
             document.getElementById('prob-val').innerText = "98.7%";
-            document.getElementById('cloud-load').innerText = "PEAK";
-            document.getElementById('sidechain-hash').innerText = "0x" + Math.random().toString(16).substr(2, 32).toUpperCase();
-            
+            document.getElementById('cloud-load').innerText = "ANALYSIS COMPLETE";
             document.getElementById('dossier-pericial').style.display = 'block';
             window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
         }
