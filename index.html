@@ -3,121 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUDIT GLOBAL INTELLIGENCE - Forensic Portal</title>
+    <title>AGI - Global Intelligence Suite</title>
     <style>
-        :root { --bg: #010409; --acc: #3b82f6; --text: #f0f6fc; --gray: #8b949e; }
+        :root { --bg: #010409; --acc: #3b82f6; --text: #f0f6fc; --gray: #8b949e; --success: #238636; }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
-        #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.6; }
-        header { position: fixed; top: 0; width: 100%; padding: 20px; background: rgba(1, 4, 9, 0.9); border-bottom: 1px solid #30363d; z-index: 100; text-align: center; backdrop-filter: blur(10px); }
-        .container { position: relative; z-index: 10; max-width: 800px; margin: 120px auto; padding: 20px; }
-        .card { background: rgba(13, 17, 23, 0.95); border: 1px solid #30363d; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        input[type="text"] { width: 100%; padding: 15px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: var(--acc); border-radius: 10px; box-sizing: border-box; font-family: 'Courier New', monospace; outline: none; }
-        .btn { background: var(--acc); color: #fff; border: none; padding: 18px 30px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 15px; text-transform: uppercase; transition: 0.3s; }
-        .btn:hover { background: #2563eb; transform: translateY(-2px); }
-        #scan-box { display: none; margin-top: 25px; text-align: left; }
-        .progress-bg { background: #161b22; height: 10px; border-radius: 5px; overflow: hidden; margin: 10px 0; }
-        .progress-fill { background: var(--acc); height: 100%; width: 0%; transition: width 0.1s; }
-        .log-text { font-size: 11px; color: var(--gray); font-family: monospace; height: 20px; overflow: hidden; }
-        #contract-view { background: #fff; color: #1a1a1a; padding: 50px 70px; display: none; text-align: justify; font-family: 'Times New Roman', serif; line-height: 1.5; border-radius: 4px; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
-        .c-header { border-bottom: 4px solid var(--acc); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .fee-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 12px; }
-        .fee-table th, .fee-table td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        .stamp { border: 3px double var(--acc); padding: 10px; color: var(--acc); font-weight: bold; text-align: center; display: inline-block; transform: rotate(-5deg); margin-top: 15px; }
-        #pay-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:1000; justify-content:center; align-items:center; }
-        @media print { #canvas, header, .card, .btn, .no-print { display: none !important; } #contract-view { display: block !important; padding: 0; box-shadow: none; width: 100%; } .container { margin: 0; max-width: 100%; } }
+        #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.5; }
+        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(1, 4, 9, 0.9); border-bottom: 1px solid #30363d; z-index: 100; text-align: center; backdrop-filter: blur(10px); }
+        .container { position: relative; z-index: 10; max-width: 850px; margin: 100px auto; padding: 20px; }
+        
+        /* Cards y Componentes */
+        .card { background: rgba(13, 17, 23, 0.98); border: 1px solid #30363d; padding: 35px; border-radius: 15px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 15px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: var(--acc); border-radius: 8px; font-family: monospace; outline: none; }
+        .btn { background: var(--acc); color: #fff; border: none; padding: 16px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
+        .btn:hover { background: #2563eb; transform: translateY(-1px); }
+
+        /* Barra de Progreso */
+        #scan-box { display: none; margin-top: 20px; text-align: left; }
+        .p-bg { background: #161b22; height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .p-fill { background: var(--acc); height: 100%; width: 0%; transition: width 0.15s; }
+
+        /* VISTAS: Contrato y Reporte */
+        .doc-view { background: #fff; color: #1a1a1a; padding: 60px; display: none; text-align: justify; font-family: 'Times New Roman', serif; border-radius: 2px; position: relative; }
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; color: rgba(59, 130, 246, 0.05); pointer-events: none; white-space: nowrap; font-weight: 900; }
+        
+        /* PANEL ADMIN OCULTO */
+        #admin-panel { display: none; position: fixed; bottom: 20px; right: 20px; width: 300px; background: #0d1117; border: 1px solid var(--acc); padding: 15px; z-index: 2000; border-radius: 10px; font-size: 12px; font-family: monospace; box-shadow: 0 0 20px var(--acc); }
+
+        @media print { 
+            body { background: #fff; }
+            #canvas, header, .btn, .no-print, #admin-panel { display: none !important; } 
+            .doc-view { display: block !important; padding: 0; box-shadow: none; width: 100%; }
+            .container { margin: 0; max-width: 100%; }
+        }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
-    <header><strong style="color:var(--acc); letter-spacing:3px;">AUDIT GLOBAL INTELLIGENCE</strong></header>
+    <header><strong style="color:var(--acc); letter-spacing:4px; font-size: 20px;">AUDIT GLOBAL INTELLIGENCE</strong></header>
 
     <div class="container">
         <div id="m-screen" class="card">
-            <h2 style="margin-top:0;">Forensic Asset Verification</h2>
-            <p style="color:var(--gray); font-size: 14px;">Ingrese el Hash del activo para iniciar la trazabilidad pericial.</p>
-            <input type="text" id="h-in" placeholder="0x... o ID de Transacción">
-            <button class="btn" id="scan-btn" onclick="runScan()">Iniciar Análisis de Nodos</button>
+            <h3>Forensic Asset Analysis</h3>
+            <input type="text" id="h-in" placeholder="Ingrese Hash o ID de Transacción">
+            <button class="btn" id="scan-btn" onclick="startForensic()">Iniciar Rastreo de Nodos</button>
+            
             <div id="scan-box">
-                <div class="log-text" id="log-msg">Iniciando protocolos de conexión...</div>
-                <div class="progress-bg"><div class="progress-fill" id="p-bar"></div></div>
+                <div id="log-msg" style="font-size: 11px; color: var(--gray); font-family: monospace;">Estableciendo conexión segura...</div>
+                <div class="p-bg"><div class="p-fill" id="p-bar"></div></div>
             </div>
-            <div id="alert-box" style="display:none; margin-top:30px; border: 1px solid var(--acc); padding: 20px; border-radius: 12px; background: rgba(59, 130, 246, 0.05);">
-                <p style="color:var(--acc); font-weight:bold; margin-top:0;">REPORTE BLOQUEADO: PROTOCOLO NIA-240</p>
-                <button class="btn" onclick="showF()">Gestionar Firma de Convenio</button>
+
+            <div id="alert-box" style="display:none; margin-top:25px; border: 1px solid var(--acc); padding: 15px; border-radius: 10px; background: rgba(59, 130, 246, 0.03);">
+                <p style="color:var(--acc); font-weight:bold; font-size: 14px;">BLOQUEO PREVENTIVO (NIA-240)</p>
+                <p style="font-size: 12px; color: var(--gray);">Se requiere validación de identidad y firma de convenio para procesar el reporte de trazabilidad.</p>
+                <button class="btn" onclick="goToForm()">Vincular Carta Convenio</button>
             </div>
         </div>
 
         <div id="f-screen" style="display:none;" class="card">
-            <h3 style="color:var(--acc)">Registro de Cliente</h3>
-            <input type="text" id="c-name" placeholder="Nombre Completo / Empresa">
+            <h3 style="color:var(--acc)">Registro Oficial del Cliente</h3>
+            <input type="text" id="c-name" placeholder="Nombre / Razón Social">
             <input type="text" id="c-id" placeholder="ID Fiscal / Pasaporte">
-            <button class="btn" onclick="generateContract()">Generar y Sellar Documento</button>
+            <button class="btn" onclick="genContract()">Generar y Sellar Contrato</button>
         </div>
 
-        <div id="contract-view">
-            <div class="c-header">
-                <div><h1 style="color:var(--acc); margin:0; font-size:26px;">AUDIT GLOBAL INTELLIGENCE</h1><small>INVESTIGACIÓN FORENSE DIGITAL</small></div>
-                <div style="text-align: right; font-size: 12px;"><strong>REF: AGI-FS-2026</strong></div>
+        <div id="contract-view" class="doc-view">
+            <div class="watermark">CONFIDENCIAL</div>
+            <div style="border-bottom: 3px solid var(--acc); padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 style="color:var(--acc); margin:0;">CARTA CONVENIO PROFESIONAL</h2>
+                <small>REF: AGI-2026-LAW</small>
             </div>
-            <p style="text-align: right;"><strong>Fecha:</strong> <span id="out-d"></span></p>
-            <p><strong>A LA ATENCIÓN DE:</strong> <span id="out-n" style="font-weight:bold; text-decoration:underline;"></span><br><strong>IDENTIFICACIÓN:</strong> <span id="out-i"></span></p>
-            <h4>1. OBJETO Y ALCANCE</h4>
-            <p>Se formaliza el peritaje técnico sobre el activo <b>Hash: <span id="out-h"></span></b> bajo estándares <b>NIA-240</b> e <b>ISO-27001</b>.</p>
-            <h4>2. HONORARIOS Y GESTIÓN</h4>
-            <table class="fee-table">
-                <tr style="background:#f2f2f2;"><th>SERVICIO</th><th>NIVEL I</th><th>NIVEL II</th><th>NIVEL III</th></tr>
-                <tr><td>Honorarios Periciales</td><td>$2,100.00</td><td>$5,750.00</td><td>$13,250.00</td></tr>
-                <tr><td>Infraestructura de Datos</td><td>$1,750.00</td><td>$1,750.00</td><td>$1,750.00</td></tr>
-                <tr style="font-weight:bold; color:var(--acc);"><td>TOTAL (USD)</td><td>$3,850.00</td><td>$7,500.00</td><td>$15,000.00</td></tr>
+            <p><strong>REPRESENTANTE:</strong> <span id="out-n"></span> | <strong>ID:</strong> <span id="out-i"></span></p>
+            <p>Por medio de la presente, <strong>AUDIT GLOBAL INTELLIGENCE</strong> se compromete a realizar la auditoría forense del activo <strong>Hash: <span id="out-h"></span></strong> bajo normas NIA-240. Los honorarios se desglosan según el nivel de intervención requerido ($3,850 / $7,500 / $15,000).</p>
+            <p style="background: #f0f7ff; padding: 10px; border: 1px solid #d0e7ff;"><strong>ANTICIPO OBLIGATORIO:</strong> $1,750.00 USD para apertura de infraestructura pericial.</p>
+            <div style="margin-top:40px; display: flex; justify-content: space-between;">
+                <div style="border: 2px solid var(--acc); padding: 10px; color: var(--acc); font-weight: bold;">AGI CERTIFIED</div>
+                <div style="text-align: center; width: 200px; border-top: 1px solid #000; margin-top: 30px;">Firma del Cliente</div>
+            </div>
+            <button class="btn no-print" style="margin-top:30px; background: #1a1a1a;" onclick="showPayment()">DESCARGAR Y PROCEDER AL PAGO</button>
+        </div>
+
+        <div id="report-view" class="doc-view">
+            <div class="watermark">REPORT VALIDATED</div>
+            <div style="text-align: center; border-bottom: 5px double var(--acc); margin-bottom: 30px;">
+                <h1 style="color:var(--acc); margin:0;">CERTIFICADO DE TRAZABILIDAD</h1>
+                <p style="letter-spacing: 5px; font-size: 10px;">GLOBAL FORENSIC AUDIT REPORT</p>
+            </div>
+            <h4>RESUMEN EJECUTIVO DE HALLAZGOS</h4>
+            <p>Se ha completado el análisis de profundidad en la red de nodos. El activo reportado presenta una cadena de custodia con las siguientes métricas:</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin: 20px 0;">
+                <tr style="background: #f2f2f2;">
+                    <th style="border: 1px solid #ccc; padding: 8px;">PARÁMETRO</th>
+                    <th style="border: 1px solid #ccc; padding: 8px;">ESTADO</th>
+                </tr>
+                <tr><td style="border: 1px solid #ccc; padding: 8px;">Verificación de Nodos</td><td style="border: 1px solid #ccc; padding: 8px; color: green;">COMPLETO</td></tr>
+                <tr><td style="border: 1px solid #ccc; padding: 8px;">Identificación de IP de Origen</td><td style="border: 1px solid #ccc; padding: 8px; color: green;">LOCALIZADO</td></tr>
+                <tr><td style="border: 1px solid #ccc; padding: 8px;">Estatus NIA-240</td><td style="border: 1px solid #ccc; padding: 8px; font-weight: bold;">CERTIFICADO</td></tr>
             </table>
-            <p style="background:#eff6ff; padding:15px; border-left:4px solid var(--acc); font-size: 13px;"><strong>ANTICIPO DE APERTURA:</strong> $1,750.00 USD por infraestructura forense.</p>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px;">
-                <div class="stamp">AGI VALIDATED</div>
-                <div style="text-align:center; width:250px;"><div style="border-bottom:1px solid #000; height:40px;"></div><p style="font-size:12px;"><span id="c-sig"></span></p></div>
+            <p><strong>CONCLUSIÓN:</strong> El activo identificado posee viabilidad de recuperación mediante protocolo pericial nivel III.</p>
+            <div style="text-align: center; margin-top: 50px;">
+                <div style="display: inline-block; padding: 20px; border: 4px solid var(--acc); color: var(--acc); font-weight: 900; transform: rotate(-3deg);">SELLO DIGITAL DE VALIDEZ INTERNACIONAL</div>
             </div>
-            <button class="btn no-print" style="background:#1a1a1a; margin-top:40px;" onclick="finalizeAndPay()">DESCARGAR PDF Y ACTIVAR FOLIO</button>
+            <button class="btn no-print" style="margin-top:30px; background: #238636;" onclick="window.print()">DESCARGAR REPORTE PERICIAL (PDF)</button>
         </div>
     </div>
 
-    <div id="pay-modal">
-        <div class="card" style="max-width:400px; border:1px solid var(--acc);">
-            <h3 style="color:var(--acc); margin-top:0;">ACTIVACIÓN DE FOLIO</h3>
-            <div style="background:#0d1117; padding:20px; border-radius:12px; margin:20px 0;">
-                <p style="margin:0; font-size:24px; font-weight:bold;">$1,750.00 USDT</p>
-                <p style="font-size:10px; color:var(--gray); margin:10px 0;">NETWORK: TRC20 (Binance)</p>
-                <p id="w-addr" style="font-family:monospace; font-size:11px; color:#fff; word-break:break-all; background:#161b22; padding:10px;">TWV5T4qjXWv25z9p8R5kLzV3n8M7jB1Xq2</p>
-                <button class="btn" style="padding:10px; font-size:11px;" onclick="copyW()">Copiar Dirección</button>
+    <div id="pay-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:1500; justify-content:center; align-items:center;">
+        <div class="card" style="max-width:380px; border:1px solid var(--acc);">
+            <h3 style="color:var(--acc)">ACTIVACIÓN DE SERVICIO</h3>
+            <p style="font-size: 13px;">Deposite el anticipo de infraestructura para liberar su reporte:</p>
+            <div style="background:#0d1117; padding:20px; border-radius:10px; margin:15px 0; border: 1px dashed var(--acc);">
+                <p style="margin:0; font-size:26px; font-weight:bold;">$1,750.00 <small>USDT</small></p>
+                <p style="font-size:10px; color:var(--gray); margin-top:10px;">RED: TRC20 (Binance)</p>
+                <p id="w-addr" style="font-family:monospace; font-size:11px; word-break:break-all; background:#161b22; padding:10px; color:#fff;">TWV5T4qjXWv25z9p8R5kLzV3n8M7jB1Xq2</p>
+                <button class="btn" style="padding:8px; font-size:11px;" onclick="copyW()">Copiar Dirección</button>
             </div>
-            <button class="btn" style="background:#238636;" onclick="location.reload()">He realizado la transferencia</button>
+            <button class="btn" style="background:var(--success)" onclick="showFinalReport()">HE REALIZADO EL PAGO</button>
         </div>
+    </div>
+
+    <div id="admin-panel">
+        <strong style="color:var(--acc)">COMMAND LOGS (ADMIN)</strong>
+        <hr style="border: 0; border-top: 1px solid #333;">
+        <div id="admin-list" style="max-height: 150px; overflow-y: auto;">Esperando actividad...</div>
+        <button onclick="document.getElementById('admin-panel').style.display='none'" style="background:none; border:none; color:red; cursor:pointer; font-size:10px;">[Cerrar]</button>
     </div>
 
     <script>
+        // Animación de Fondo
         const c=document.getElementById('canvas'), x=c.getContext('2d');
         let pts=[];
-        function init(){ c.width=window.innerWidth; c.height=window.innerHeight; pts=[]; for(let i=0; i<70; i++) pts.push({x:Math.random()*c.width, y:Math.random()*c.height, vx:(Math.random()-0.5)*0.6, vy:(Math.random()-0.5)*0.6}); }
-        function draw(){ x.clearRect(0,0,c.width,c.height); x.fillStyle='#3b82f6'; x.strokeStyle='rgba(59,130,246,0.15)'; pts.forEach((p,idx)=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>c.width)p.vx*=-1; if(p.y<0||p.y>c.height)p.vy*=-1; x.beginPath(); x.arc(p.x,p.y,2,0,Math.PI*2); x.fill(); for(let j=idx+1; j<pts.length; j++){ let d=Math.hypot(p.x-pts[j].x, p.y-pts[j].y); if(d<150){ x.beginPath(); x.moveTo(p.x,p.y); x.lineTo(pts[j].x,pts[j].y); x.stroke(); } } }); requestAnimationFrame(draw); }
-        init(); draw();
-        function runScan(){
-            if(!document.getElementById('h-in').value) return alert('Ingrese un Hash');
+        function init(){ c.width=window.innerWidth; c.height=window.innerHeight; pts=[]; for(let i=0; i<60; i++) pts.push({x:Math.random()*c.width, y:Math.random()*c.height, vx:(Math.random()-0.5)*0.5, vy:(Math.random()-0.5)*0.5}); }
+        function draw(){ x.clearRect(0,0,c.width,c.height); x.fillStyle='#3b82f6'; x.strokeStyle='rgba(59,130,246,0.1)'; pts.forEach((p,idx)=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>c.width)p.vx*=-1; if(p.y<0||p.y>c.height)p.vy*=-1; x.beginPath(); x.arc(p.x,p.y,1.5,0,Math.PI*2); x.fill(); for(let j=idx+1; j<pts.length; j++){ let d=Math.hypot(p.x-pts[j].x, p.y-pts[j].y); if(d<150){ x.beginPath(); x.moveTo(p.x,p.y); x.lineTo(pts[j].x,pts[j].y); x.stroke(); } } }); requestAnimationFrame(draw); }
+        init(); draw(); window.onresize=init;
+
+        // PANEL ADMIN SECRETO (Tecla 'S')
+        window.addEventListener('keydown', (e) => { if(e.key.toLowerCase() === 's') document.getElementById('admin-panel').style.display = 'block'; });
+
+        function addLog(msg) {
+            const list = document.getElementById('admin-list');
+            if(list.innerText.includes("Esperando")) list.innerHTML = "";
+            list.innerHTML += `<div>> ${new Date().toLocaleTimeString()}: ${msg}</div>`;
+        }
+
+        // LÓGICA DE FLUJO
+        function startForensic() {
+            const h = document.getElementById('h-in').value;
+            if(!h) return alert('Ingrese un Hash');
+            addLog(`Consulta Hash: ${h.substring(0,10)}...`);
             document.getElementById('scan-btn').style.display = 'none';
             document.getElementById('scan-box').style.display = 'block';
             let p=0; const bar=document.getElementById('p-bar'), log=document.getElementById('log-msg');
-            const msgs = ["Analizando bloques...", "Verificando firmas NIA-240...", "Rastreando saltos de IP...", "Error de integridad...", "Bloqueando reporte..."];
-            const int = setInterval(()=>{ p+=1; bar.style.width=p+'%'; if(p%20==0) log.innerText = msgs[Math.floor(p/20)]; if(p>=100){ clearInterval(int); document.getElementById('alert-box').style.display='block'; } }, 50);
+            const msgs = ["Localizando nodos...", "Escaneando bloques...", "Identificando IPs...", "Análisis NIA-240...", "Bloqueando por seguridad..."];
+            const int = setInterval(() => {
+                p+=1; bar.style.width=p+'%';
+                if(p%20==0) log.innerText = msgs[Math.floor(p/20)];
+                if(p>=100){ clearInterval(int); document.getElementById('alert-box').style.display='block'; addLog("Bloqueo NIA-240 activado."); }
+            }, 40);
         }
-        function showF(){ document.getElementById('m-screen').style.display='none'; document.getElementById('f-screen').style.display='block'; }
-        function generateContract(){
-            const n=document.getElementById('c-name').value;
+
+        function goToForm() { document.getElementById('m-screen').style.display='none'; document.getElementById('f-screen').style.display='block'; }
+
+        function genContract() {
+            const n = document.getElementById('c-name').value;
             if(!n) return alert('Ingrese nombre');
+            addLog(`Generando contrato para: ${n}`);
             document.getElementById('out-n').innerText = n; document.getElementById('c-sig').innerText = n;
             document.getElementById('out-i').innerText = document.getElementById('c-id').value;
             document.getElementById('out-h').innerText = document.getElementById('h-in').value;
             document.getElementById('out-d').innerText = new Date().toLocaleDateString();
             document.getElementById('f-screen').style.display='none'; document.getElementById('contract-view').style.display='block';
         }
-        function finalizeAndPay(){ window.print(); setTimeout(() => { document.getElementById('pay-modal').style.display='flex'; }, 1000); }
-        function copyW(){ navigator.clipboard.writeText(document.getElementById('w-addr').innerText); alert('Copiado'); }
+
+        function showPayment() { window.print(); document.getElementById('pay-modal').style.display='flex'; addLog("Modal de pago mostrado."); }
+        
+        function showFinalReport() {
+            document.getElementById('pay-modal').style.display='none';
+            document.getElementById('contract-view').style.display='none';
+            document.getElementById('report-view').style.display='block';
+            addLog("REPORTE LIBERADO.");
+            alert("Pago validado. Su reporte pericial ha sido generado.");
+        }
+
+        function copyW() { navigator.clipboard.writeText(document.getElementById('w-addr').innerText); alert('Billetera copiada.'); }
     </script>
 </body>
 </html>
