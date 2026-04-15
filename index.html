@@ -3,123 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGI OMNI-SENTINEL v7.0 | Enterprise Forensic Ecosystem</title>
+    <title>AGI OMNI-SENTINEL v8.0 | The Final Settlement</title>
     <style>
         :root { --bg: #010409; --acc: #3b82f6; --ia-green: #00ff41; --danger: #ff3e3e; --warn: #f59e0b; --gray: #8b949e; --text: #f0f6fc; --card: #0d1117; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', 'Consolas', monospace; overflow-x: hidden; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
-        /* Layout de Navegación */
         header { background: rgba(1, 4, 9, 0.98); border-bottom: 1px solid #30363d; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .system-status { font-size: 10px; color: var(--ia-green); letter-spacing: 1px; }
-        .nav-btn { background: transparent; border: 1px solid var(--acc); color: var(--acc); padding: 6px 15px; cursor: pointer; font-size: 11px; border-radius: 4px; font-weight: 600; text-transform: uppercase; transition: 0.2s; }
-        .nav-btn:hover { background: var(--acc); color: white; }
+        .nav-btn { background: transparent; border: 1px solid var(--acc); color: var(--acc); padding: 6px 15px; cursor: pointer; font-size: 11px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
 
-        .view-section { display: none; padding: 25px; max-width: 1400px; margin: 0 auto; animation: slideUp 0.4s ease-out; }
+        .view-section { display: none; padding: 25px; max-width: 1400px; margin: 0 auto; animation: slideUp 0.4s ease; }
         .active-view { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
 
-        /* Dashboard de Inteligencia Operativa */
+        /* Dashboard de Control */
         .grid-dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--card); border: 1px solid #30363d; padding: 20px; border-top: 3px solid var(--acc); border-radius: 6px; }
-        .stat-val { font-size: 26px; font-weight: 800; color: var(--text); }
-        .stat-lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; margin-top: 4px; }
+        .stat-val { font-size: 24px; font-weight: 800; }
+        .stat-lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; }
 
-        /* Consola de Intervención Dual */
-        .main-engine { display: grid; grid-template-columns: 1fr 450px; gap: 20px; height: 600px; }
+        /* Layout Principal */
+        .main-engine { display: grid; grid-template-columns: 1fr 400px; gap: 20px; height: 500px; }
         #radar-container { background: #000; border: 1px solid #30363d; border-radius: 8px; position: relative; overflow: hidden; }
-        .terminal { background: #010409; border: 1px solid #30363d; border-radius: 8px; padding: 20px; color: var(--ia-green); font-size: 12px; overflow-y: auto; line-height: 1.6; border-right: 4px solid var(--acc); }
+        .terminal { background: #010409; border: 1px solid #30363d; border-radius: 8px; padding: 20px; color: var(--ia-green); font-size: 12px; overflow-y: auto; line-height: 1.6; }
 
-        /* Alert System */
-        #threat-alert { display: none; background: rgba(255, 62, 62, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center; font-weight: bold; }
+        /* Panel de Negociación (Smart-Settlement) */
+        #settlement-panel { display: none; background: #0d1117; border: 1px solid var(--warn); padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 5px solid var(--warn); }
+        .negotiation-log { background: #000; padding: 10px; font-size: 11px; color: var(--warn); height: 100px; overflow-y: auto; margin: 10px 0; border: 1px solid #333; }
 
-        /* Botones de Misión Crítica */
-        .btn-action { padding: 18px; border: none; border-radius: 6px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.3s; width: 100%; }
-        .btn-freeze { background: var(--danger); color: white; box-shadow: 0 4px 15px rgba(255, 62, 62, 0.3); }
-        .btn-freeze:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
-
-        /* Dossier Pericial Final */
-        .dossier { display: none; background: #fff; color: #000; padding: 60px; font-family: 'Times New Roman', serif; margin-top: 30px; border-radius: 4px; position: relative; }
-        .blockchain-tag { border: 1px solid #000; padding: 10px; font-family: monospace; display: inline-block; margin-top: 20px; font-size: 12px; }
+        .btn-action { padding: 15px; border: none; border-radius: 6px; font-weight: 800; text-transform: uppercase; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn-neg { background: var(--warn); color: black; }
+        .btn-neg:disabled { opacity: 0.3; cursor: not-allowed; }
 
         .node { position: absolute; border-radius: 50%; background: var(--acc); transform: translate(-50%, -50%); transition: 1s; }
-        .node-label { position: absolute; font-size: 9px; color: var(--gray); margin-top: 10px; transform: translate(-50%, 0); }
-
-        @media print { .no-print { display: none !important; } .dossier { display: block !important; box-shadow: none; margin: 0; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); } }
+        .node-target { background: var(--danger); animation: pulse 2s infinite; }
     </style>
 </head>
 <body>
 
     <header class="no-print">
-        <div class="system-status">● AGI OMNI-SENTINEL CORE: ENCRYPTED & ACTIVE</div>
+        <div style="color:var(--ia-green); font-size:11px; font-weight:bold;">SYSTEM READY: OMNI-SENTINEL v8.0</div>
         <div>
             <button class="nav-btn" onclick="switchView('portal-view')">Portal</button>
-            <button class="nav-btn" onclick="switchView('console-view')">Consola Forense</button>
+            <button class="nav-btn" onclick="switchView('console-view')">Consola</button>
         </div>
     </header>
 
     <div id="portal-view" class="view-section active-view">
-        <div style="max-width: 500px; margin: 60px auto; background: var(--card); padding: 40px; border-radius: 12px; border: 1px solid #30363d; text-align: center;">
-            <h2 style="color:var(--acc); margin-top:0;">Configuración de Intervención</h2>
-            <p style="color:var(--gray); font-size: 12px;">Protocolo NIA-240 / ISO-27037 Activo</p>
+        <div style="max-width: 500px; margin: 50px auto; background: var(--card); padding: 40px; border-radius: 12px; border: 1px solid #30363d; text-align: center;">
+            <h2 style="color:var(--acc)">Ecosistema de Recuperación</h2>
             <input type="text" id="target-name" placeholder="Representante Legal" style="width:100%; padding:15px; margin:10px 0; background:#010409; border:1px solid #333; color:white; border-radius:6px;">
-            <input type="number" id="target-amount" placeholder="Monto a Custodiar (USD)" style="width:100%; padding:15px; margin:10px 0; background:#010409; border:1px solid #333; color:white; border-radius:6px;">
-            <input type="text" id="target-hash" placeholder="Wallet ID / Hash de Activo" style="width:100%; padding:15px; margin:10px 0; background:#010409; border:1px solid #333; color:white; border-radius:6px;">
-            <button class="btn-action" style="background:var(--acc); color:white; margin-top:15px;" onclick="initSystem()">Inicializar Ecosistema</button>
+            <input type="number" id="target-amount" placeholder="Monto a Recuperar (USD)" style="width:100%; padding:15px; margin:10px 0; background:#010409; border:1px solid #333; color:white; border-radius:6px;">
+            <input type="text" id="target-hash" placeholder="Wallet Hash" style="width:100%; padding:15px; margin:10px 0; background:#010409; border:1px solid #333; color:white; border-radius:6px;">
+            <button class="btn-action" style="background:var(--acc); color:white;" onclick="initSystem()">Iniciar Auditoría</button>
         </div>
     </div>
 
     <div id="console-view" class="view-section">
-        <div id="threat-alert">⚠️ ACTIVIDAD DETECTADA EN PUERTO DE SALIDA (EXCHANGE DETECTED) ⚠️</div>
-        
-        <div class="grid-dashboard no-print">
-            <div class="stat-card">
-                <div class="stat-val" id="val-cap">$0</div>
-                <div class="stat-lbl">Capacidad de Recuperación</div>
-            </div>
-            <div class="stat-card" style="border-top-color: var(--ia-green);">
-                <div class="stat-val" id="val-prob">0%</div>
-                <div class="stat-lbl">Certeza de Atribución</div>
-            </div>
-            <div class="stat-card" style="border-top-color: var(--warn);">
-                <div class="stat-val" id="val-nodes">12</div>
-                <div class="stat-lbl">Nodos en Cluster</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-val" style="color:var(--ia-green)">SECURE</div>
-                <div class="stat-lbl">ISO-27037 Compliance</div>
-            </div>
+        <div class="grid-dashboard">
+            <div class="stat-card"><div class="stat-val" id="val-cap">$0</div><div class="stat-lbl">Activos Trazados</div></div>
+            <div class="stat-card" style="border-top-color: var(--ia-green);"><div class="stat-val">98.7%</div><div class="stat-lbl">Confianza ID</div></div>
+            <div class="stat-card" style="border-top-color: var(--warn);"><div class="stat-val" id="val-status">READY</div><div class="stat-lbl">Negociación</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:var(--ia-green)">ACTIVE</div><div class="stat-lbl">Ecosistema Soberano</div></div>
         </div>
 
         <div class="main-engine no-print">
-            <div id="radar-container">
-                <div style="position:absolute; top:15px; left:15px; font-size:10px; color:var(--ia-green); z-index:10;">GNN TOPOLOGY MAP: LIVE TRAFFIC</div>
-            </div>
-            <div class="terminal" id="term-logs">
-                [SYS]: Kernel cargado. Esperando entrada de activos...
+            <div id="radar-container"></div>
+            <div class="terminal" id="term-logs">[SYS]: Kernel activo. Esperando protocolo...</div>
+        </div>
+
+        <div id="settlement-panel">
+            <h3 style="margin:0; color:var(--warn);">CANAL DE LIQUIDACIÓN SMART-SETTLEMENT</h3>
+            <p style="font-size:11px; color:var(--gray);">Canal encriptado abierto con el agresor identificado como Nikolai V.</p>
+            <div class="negotiation-log" id="neg-log"></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button class="btn-action btn-neg" id="btn-neg" onclick="startNegotiation()">Iniciar Negociación IA</button>
+                <button class="btn-action" style="background:var(--ia-green); color:black;" id="btn-release" disabled onclick="finalizeRecovery()">Ejecutar Contrato Escrow</button>
             </div>
         </div>
 
-        <div class="grid-dashboard no-print" style="margin-top:20px; grid-template-columns: 1fr 1fr;">
-            <button class="btn-action" style="background:#1f2937; color:white;" onclick="runMasterAudit()">Ejecutar Auditoría Forense</button>
-            <button id="freeze-trigger" class="btn-action btn-freeze" disabled onclick="executeFinalFreeze()">Disparar Bloqueo Proactivo</button>
-        </div>
-
-        <div id="dossier-final" class="dossier">
-            <div style="border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between;">
-                <h1 style="margin:0;">DIAGNÓSTICO PERICIAL AGI</h1>
-                <p style="text-align:right; font-size:12px;">Ref: OMNI-7-2026<br>Validez: Internacional</p>
-            </div>
-            <h3>1. Datos de la Intervención</h3>
-            <p><strong>Cliente:</strong> <span id="rep-name"></span></p>
-            <p><strong>Activo:</strong> <span id="rep-hash" style="font-family:monospace;"></span></p>
-            <h3>2. Atribución de Nikolai V. (Style Fingerprinting)</h3>
-            <p>Se confirma la identidad mediante análisis de latencia de red (45ms) y patrones de gas con una confianza del 98.7%. El sujeto ha sido interceptado en el gateway de salida hacia Exchange Fiat.</p>
-            <div class="blockchain-tag">
-                HASH DE CUSTODIA SIDECHAIN: <span id="side-hash"></span><br>
-                ESTADO: ACTIVO BLOQUEADO EN ORIGEN
-            </div>
-            <button class="btn-action no-print" style="background:#000; color:white; margin-top:30px;" onclick="window.print()">Emitir Documentación de Ley</button>
-        </div>
+        <button class="btn-action" id="btn-master" style="background:var(--acc); color:white; margin-top:20px;" onclick="runEcosystemFlow()">Ejecutar Flujo Maestro de Recuperación</button>
     </div>
 
     <script>
@@ -129,58 +92,60 @@
         }
 
         function initSystem() {
-            const name = document.getElementById('target-name').value;
             const amt = document.getElementById('target-amount').value;
-            if(!name || !amt) return alert("Error: Credenciales incompletas.");
-            
-            document.getElementById('rep-name').innerText = name;
-            document.getElementById('rep-hash').innerText = document.getElementById('target-hash').value;
+            if(!amt) return alert("Ingrese el monto.");
             document.getElementById('val-cap').innerText = "$" + parseFloat(amt).toLocaleString();
             switchView('console-view');
         }
 
-        async function runMasterAudit() {
+        async function runEcosystemFlow() {
             const term = document.getElementById('term-logs');
             const radar = document.getElementById('radar-container');
-            const steps = [
-                { m: "Auditando consistencia de datos... OK.", c: 'var(--ia-green)' },
-                { m: "Iniciando Agent Cluster v7.0 (128 Nodos)...", c: 'var(--acc)' },
-                { m: "Rastreo Cross-Chain completado. Identificando puntos de fuga.", c: 'var(--ia-green)' },
-                { m: "ALERTA: Nikolai V. detectado intentando liquidación en CEX.", c: 'var(--danger)' },
-                { m: "Módulo de Intervención: LOCK STATUS READY.", c: 'var(--warn)' }
+            document.getElementById('btn-master').disabled = true;
+
+            const logs = [
+                {m: "Iniciando Agent Cluster v8.0...", c: 'var(--ia-green)'},
+                {m: "Identificando nodos de Nikolai V. mediante OSINT/GNN...", c: 'var(--ia-green)'},
+                {m: "INTERCEPCIÓN: Capital detectado en Gateway de Salida.", c: 'var(--danger)'},
+                {m: "Enviando Dossier de Evidencia al Exchange...", c: 'var(--acc)'},
+                {m: "BLOQUEO CONFIRMADO. Abriendo canal de negociación...", c: 'var(--warn)'}
             ];
 
-            radar.innerHTML = '';
-            for(let step of steps) {
-                term.innerHTML += `<div>[SEC]: ${step.m}</div>`;
+            for(let log of logs) {
+                term.innerHTML += `<div style="color:${log.c}">> ${log.m}</div>`;
                 term.scrollTop = term.scrollHeight;
-                
-                // Crear visualización de nodos
                 let n = document.createElement('div');
-                n.className = 'node';
-                n.style.width = '10px'; n.style.height = '10px';
-                n.style.left = Math.random()*90+5+'%'; n.style.top = Math.random()*90+5+'%';
+                n.className = 'node' + (log.c === 'var(--danger)' ? ' node-target' : '');
+                n.style.left = Math.random()*80+10+'%'; n.style.top = Math.random()*80+10+'%';
                 radar.appendChild(n);
-                
-                await new Promise(r => setTimeout(r, 1200));
+                await new Promise(r => setTimeout(r, 1500));
             }
 
-            document.getElementById('threat-alert').style.display = 'block';
-            document.getElementById('freeze-trigger').disabled = false;
-            document.getElementById('val-prob').innerText = "98.7%";
-            document.getElementById('val-nodes').innerText = "128";
+            document.getElementById('settlement-panel').style.display = 'block';
         }
 
-        async function executeFinalFreeze() {
-            const term = document.getElementById('term-logs');
-            term.innerHTML += `<div style="color:var(--danger)">[ACTION]: ENVIANDO SOLICITUD DE CONGELAMIENTO VÍA API GATEWAY...</div>`;
-            
-            await new Promise(r => setTimeout(r, 2000));
-            
-            term.innerHTML += `<div style="color:var(--ia-green)">[SUCCESS]: EXCHANGE CONFIRMA RECEPCIÓN. ACTIVO INMOVILIZADO.</div>`;
-            document.getElementById('side-hash').innerText = "0x" + Math.random().toString(16).substr(2, 32).toUpperCase();
-            document.getElementById('dossier-final').style.display = 'block';
-            window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+        async function startNegotiation() {
+            const nLog = document.getElementById('neg-log');
+            const steps = [
+                "AGI: Dossier pericial entregado al agresor. Bloqueo en CEX activo.",
+                "Sujeto (Nikolai): ¿Cómo me encontraron? ¿Qué quieren?",
+                "AGI: Protocolo de Devolución Voluntaria (90%) habilitado. Plazo: 10 min.",
+                "Sujeto (Nikolai): Acepto. Firmando contrato de devolución Escrow..."
+            ];
+
+            for(let s of steps) {
+                nLog.innerHTML += `<div>[NEG]: ${s}</div>`;
+                nLog.scrollTop = nLog.scrollHeight;
+                await new Promise(r => setTimeout(r, 2000));
+            }
+            document.getElementById('btn-release').disabled = false;
+            document.getElementById('val-status').innerText = "SIGNED";
+            document.getElementById('val-status').style.color = "var(--ia-green)";
+        }
+
+        function finalizeRecovery() {
+            alert("RECUPERACIÓN COMPLETADA:\nEl capital ha sido devuelto a la wallet del cliente mediante Smart Contract.\nEl caso ha sido archivado como Recuperación Exitosa.");
+            location.reload();
         }
     </script>
 </body>
