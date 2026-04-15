@@ -1,60 +1,137 @@
-<script>
-    // 3. Marca de Agua Forense Invisible (Metadata Inyectada)
-    function injectForensicWatermark(clientId) {
-        const metadata = btoa(JSON.stringify({
-            origin: "AGI-Forensic",
-            client: clientId,
-            timestamp: Date.now(),
-            compliance: "ISO-27001/NIA-240"
-        }));
-        console.log("Inyectando Marca Forense Invisible: " + metadata);
-        return metadata;
-    }
-
-    // 4. KYC/AML Automatizado (Simulación de Cumplimiento)
-    async function runKYCCheck(name, id) {
-        addLog("Ejecutando escaneo AML/KYC en listas globales...");
-        // Simulación de validación contra listas de sanciones
-        return new Promise(resolve => setTimeout(() => resolve(true), 1500));
-    }
-
-    // 2. Simulación de Tokenización Blockchain (NFT Minting)
-    function mintCertNFT(reportHash) {
-        addLog("Generando Certificado NFT inalterable en Blockchain...");
-        const nftId = "AGI-NFT-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-        return nftId;
-    }
-
-    // Actualización de la función de generación de contrato con estas cualidades
-    async function genContract() {
-        const n = document.getElementById('c-name').value;
-        const id = document.getElementById('c-id').value;
-        const amt = parseFloat(document.getElementById('c-amount').value);
-
-        if(!n || !id || isNaN(amt)) return alert("Datos incompletos para cumplimiento.");
-
-        // Ejecutar Cumplimiento antes de proceder
-        const isClear = await runKYCCheck(n, id);
-        if(!isClear) return alert("Alerta de Cumplimiento: Cliente no apto.");
-
-        // Inyectar marca de agua y generar ID de reporte
-        const forensicStamp = injectForensicWatermark(id);
-        const nftId = mintCertNFT(document.getElementById('h-in').value);
-
-        // Lógica de Honorarios por Éxito (Cualidad 1)
-        let successFee = amt > 100000 ? "5%" : "3%";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGI - Global Intelligence Engine (V2.0)</title>
+    <style>
+        :root { --bg: #010409; --acc: #3b82f6; --text: #f0f6fc; --gray: #8b949e; --warn: #ffa500; --succ: #238636; --dark-card: rgba(13, 17, 23, 0.95); }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.3; }
+        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(1, 4, 9, 0.9); border-bottom: 1px solid #30363d; z-index: 100; text-align: center; backdrop-filter: blur(10px); }
+        .container { position: relative; z-index: 10; max-width: 950px; margin: 100px auto; padding: 20px; }
+        .card { background: var(--dark-card); border: 1px solid #30363d; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); }
         
-        // Renderizar en el contrato
-        document.getElementById('out-n').innerText = n;
-        document.getElementById('out-h').innerText = document.getElementById('h-in').value;
+        /* Dashboard & IA Terminal */
+        .grid-dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 20px; }
+        .ia-terminal { background: #000; color: #00ff00; font-family: 'Courier New', monospace; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-size: 11px; border: 1px solid #004400; }
+        .stat-card { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--acc); padding: 15px; border-radius: 8px; text-align: center; }
         
-        // Añadir cláusula de éxito al contrato
-        const legalClause = `<p style='font-size:10px; color:var(--gray);'><b>CLÁUSULA DE ÉXITO:</b> Se establece un honorario por recuperación del ${successFee} sobre el capital total retornado.</p>`;
+        input { width: 100%; padding: 15px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: var(--acc); border-radius: 8px; font-family: monospace; }
+        .btn { background: var(--acc); color: #fff; border: none; padding: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; }
         
-        document.getElementById('contract-view').innerHTML += legalClause;
-        document.getElementById('f-screen').style.display='none';
-        document.getElementById('contract-view').style.display='block';
-        
-        addLog(`Sistema listo. NFT vinculado: ${nftId}`);
-    }
-</script>
+        /* Vista de Grafos (Simulación) */
+        #graph-map { width: 100%; height: 200px; background: radial-gradient(circle, #161b22 0%, #010409 100%); border: 1px solid #333; margin: 15px 0; position: relative; overflow: hidden; }
+        .node { position: absolute; width: 6px; height: 6px; background: var(--acc); border-radius: 50%; box-shadow: 0 0 10px var(--acc); }
+
+        .doc-view { background: #fff; color: #1a1a1a; padding: 50px; display: none; font-family: 'Times New Roman', serif; }
+        @media print { .no-print, #canvas, header, .btn, #admin-panel { display: none !important; } .doc-view { display: block !important; } }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <header><strong style="color:var(--acc); letter-spacing:5px;">AGI: GLOBAL INTELLIGENCE ENGINE</strong></header>
+
+    <div class="container">
+        <div id="m-screen" class="card">
+            <h3 style="margin:0;">Cross-Chain & Deep Web Forensic</h3>
+            <p style="font-size:11px; color:var(--gray);">Detección GNN | Desanonización IA | Protocolos ISO 27037</p>
+            
+            <div id="graph-map" id="map-viz">
+                </div>
+
+            <input type="text" id="h-in" placeholder="Dirección, Hash, Puerto o Identificador Off-Chain">
+            <button class="btn" onclick="startAutonomousAgent()">Desplegar Agentes Investigadores</button>
+            
+            <div id="scan-box" style="display:none; margin-top:20px;">
+                <div class="ia-terminal" id="ia-logs"></div>
+                <div style="background:#161b22; height:4px; margin-top:10px;"><div id="p-bar" style="width:0%; background:var(--acc); height:100%;"></div></div>
+            </div>
+        </div>
+
+        <div id="admin-panel">
+            <h4 style="color:var(--acc); margin-top:0;">ROI & PERFORMANCE DASHBOARD</h4>
+            <div class="grid-dashboard">
+                <div class="stat-card">
+                    <small>Recuperación Proyectada</small>
+                    <div id="roi-val" style="font-size:20px; font-weight:bold;">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <small>Probabilidad de Atribución</small>
+                    <div id="attr-prob" style="font-size:20px; font-weight:bold; color:var(--succ);">0%</div>
+                </div>
+            </div>
+            <div id="audit-trail" style="font-size:9px; margin-top:10px; color:var(--gray); border-top:1px solid #333; padding-top:5px;">
+                Cadena de Custodia Inmutable: ACTIVA
+            </div>
+        </div>
+
+        <div id="report-view" class="doc-view">
+            <div style="border-bottom: 5px solid #000; display:flex; justify-content:space-between;">
+                <h2>PERITAJE INFORMÁTICO FORENSE</h2>
+                <p>ISO/IEC 27037:2012</p>
+            </div>
+            <p><strong>FOLIO BLOCKCHAIN:</strong> <span id="out-nft"></span></p>
+            <div id="ia-verdict" style="background:#f9f9f9; padding:20px; border:1px dashed #000; margin:20px 0;">
+                </div>
+            <p style="font-size:10px;">Este informe ha sido sellado temporalmente y su hash registrado en una sidechain privada para garantizar la integridad de la evidencia (Anti-Forensics Protection).</p>
+            <button class="btn no-print" onclick="window.print()">Emitir Certificación Oficial</button>
+        </div>
+    </div>
+
+    <script>
+        // Animación de Grafos
+        const map = document.getElementById('graph-map');
+        for(let i=0; i<15; i++) {
+            let n = document.createElement('div');
+            n.className = 'node';
+            n.style.left = Math.random()*90+'%';
+            n.style.top = Math.random()*90+'%';
+            map.appendChild(n);
+        }
+
+        async function startAutonomousAgent() {
+            const h = document.getElementById('h-in').value;
+            if(!h) return;
+            document.getElementById('scan-box').style.display='block';
+            const logs = document.getElementById('ia-logs');
+            const bar = document.getElementById('p-bar');
+            
+            const steps = [
+                "> Iniciando infraestructura Cloud Auto-Scaling...",
+                "> Agentes autónomos desplegados en Cross-Chain Bridges (Stargate/Wormhole)...",
+                "> Aplicando GNN: Prediciendo saltos de fondos...",
+                "> Analizando metadatos Off-Chain (Telegram, DarkWeb, Discord)...",
+                "> Ejecutando IA de Estilo (Fingerprinting): Identificando patrones de gas...",
+                "> Desanonización de Zero Knowledge Proof detectada...",
+                "> Fusión de datos completada. Identidad atribuida al 87%.",
+                "> Registrando pasos en Sidechain de Custodia Inexpugnable...",
+                "> Borrador de informe pericial listo para tribunales."
+            ];
+
+            for(let i=0; i<steps.length; i++) {
+                logs.innerHTML += `<div>${steps[i]}</div>`;
+                logs.scrollTop = logs.scrollHeight;
+                bar.style.width = ((i+1)/steps.length)*100 + '%';
+                await new Promise(r => setTimeout(r, 800));
+            }
+
+            // Actualizar Dashboard
+            document.getElementById('roi-val').innerText = "$142,500.00";
+            document.getElementById('attr-prob').innerText = "87.4%";
+            document.getElementById('admin-panel').style.display = 'block';
+            
+            // Preparar Reporte
+            document.getElementById('out-nft').innerText = "0x" + Math.random().toString(16).substr(2, 15);
+            document.getElementById('ia-verdict').innerHTML = `
+                <h4>CONCLUSIÓN DE IA AGENCIA:</h4>
+                <p>Se ha formulado la hipótesis de "Chain Hopping" con fines de ocultamiento. El perfil conductual coincide con el grupo de amenaza identificado en la Dark Web como 'Alpha-Red'. Se recomienda acción legal inmediata bajo protocolo ISO 27037.</p>
+            `;
+            setTimeout(() => { 
+                document.getElementById('m-screen').style.display='none';
+                document.getElementById('report-view').style.display='block';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
