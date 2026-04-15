@@ -2,136 +2,141 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGI - Global Intelligence Engine (V2.0)</title>
+    <title>AGI - Command Center v3.0 | Unified Forensic Suite</title>
     <style>
-        :root { --bg: #010409; --acc: #3b82f6; --text: #f0f6fc; --gray: #8b949e; --warn: #ffa500; --succ: #238636; --dark-card: rgba(13, 17, 23, 0.95); }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
-        #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.3; }
-        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(1, 4, 9, 0.9); border-bottom: 1px solid #30363d; z-index: 100; text-align: center; backdrop-filter: blur(10px); }
-        .container { position: relative; z-index: 10; max-width: 950px; margin: 100px auto; padding: 20px; }
-        .card { background: var(--dark-card); border: 1px solid #30363d; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); }
+        :root { --bg: #010409; --acc: #3b82f6; --text: #f0f6fc; --gray: #8b949e; --warn: #ffa500; --succ: #238636; --ia-green: #00ff41; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', 'Segoe UI', monospace; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Dashboard & IA Terminal */
-        .grid-dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 20px; }
-        .ia-terminal { background: #000; color: #00ff00; font-family: 'Courier New', monospace; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-size: 11px; border: 1px solid #004400; }
-        .stat-card { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--acc); padding: 15px; border-radius: 8px; text-align: center; }
-        
-        input { width: 100%; padding: 15px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: var(--acc); border-radius: 8px; font-family: monospace; }
-        .btn { background: var(--acc); color: #fff; border: none; padding: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; }
-        
-        /* Vista de Grafos (Simulación) */
-        #graph-map { width: 100%; height: 200px; background: radial-gradient(circle, #161b22 0%, #010409 100%); border: 1px solid #333; margin: 15px 0; position: relative; overflow: hidden; }
-        .node { position: absolute; width: 6px; height: 6px; background: var(--acc); border-radius: 50%; box-shadow: 0 0 10px var(--acc); }
+        /* Lateral de Control (Python/Colab Core) */
+        .sidebar { width: 300px; background: #0d1117; border-right: 1px solid #30363d; display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #333; text-align: center; color: var(--acc); font-weight: bold; letter-spacing: 2px; }
+        .module-list { padding: 10px; flex-grow: 1; }
+        .module-item { padding: 10px; margin-bottom: 5px; border: 1px solid #222; border-radius: 4px; font-size: 11px; cursor: pointer; transition: 0.3s; }
+        .module-item:hover { border-color: var(--acc); background: rgba(59, 130, 246, 0.05); }
+        .active-mod { border-left: 4px solid var(--acc); color: var(--acc); }
 
-        .doc-view { background: #fff; color: #1a1a1a; padding: 50px; display: none; font-family: 'Times New Roman', serif; }
-        @media print { .no-print, #canvas, header, .btn, #admin-panel { display: none !important; } .doc-view { display: block !important; } }
+        /* Consola Principal */
+        .main-stage { flex-grow: 1; position: relative; display: flex; flex-direction: column; background: radial-gradient(circle at center, #161b22 0%, #010409 100%); }
+        
+        /* Dashboard Superior (Analítica de ROI) */
+        .top-dash { height: 80px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-around; background: rgba(1, 4, 9, 0.8); backdrop-filter: blur(10px); }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 18px; font-weight: bold; color: var(--acc); }
+        .stat-lbl { font-size: 9px; color: var(--gray); text-transform: uppercase; }
+
+        /* Área Visual de Grafos (GNN) */
+        .visual-area { flex-grow: 1; position: relative; }
+        #network-canvas { width: 100%; height: 100%; }
+        
+        /* Terminal de Agentes Autónomos (Python Logic) */
+        .terminal-tray { height: 250px; background: rgba(0,0,0,0.9); border-top: 1px solid var(--acc); padding: 15px; overflow-y: auto; font-size: 12px; color: var(--ia-green); }
+
+        /* Reporte e ISO-27037 */
+        #report-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; display: none; padding: 40px; box-sizing: border-box; z-index: 1000; overflow-y: auto; }
+        .btn-action { background: var(--acc); color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        @media print { .no-print { display: none !important; } #report-overlay { display: block !important; position: static; } }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <header><strong style="color:var(--acc); letter-spacing:5px;">AGI: GLOBAL INTELLIGENCE ENGINE</strong></header>
 
-    <div class="container">
-        <div id="m-screen" class="card">
-            <h3 style="margin:0;">Cross-Chain & Deep Web Forensic</h3>
-            <p style="font-size:11px; color:var(--gray);">Detección GNN | Desanonización IA | Protocolos ISO 27037</p>
-            
-            <div id="graph-map" id="map-viz">
-                </div>
-
-            <input type="text" id="h-in" placeholder="Dirección, Hash, Puerto o Identificador Off-Chain">
-            <button class="btn" onclick="startAutonomousAgent()">Desplegar Agentes Investigadores</button>
-            
-            <div id="scan-box" style="display:none; margin-top:20px;">
-                <div class="ia-terminal" id="ia-logs"></div>
-                <div style="background:#161b22; height:4px; margin-top:10px;"><div id="p-bar" style="width:0%; background:var(--acc); height:100%;"></div></div>
-            </div>
+    <div class="sidebar no-print">
+        <div class="sidebar-header">AGI ENGINE v3.0</div>
+        <div class="module-list">
+            <div class="module-item active-mod">M01: Atribución de Estilo (Fingerprinting)</div>
+            <div class="module-item">M02: Cross-Chain Port Monitoring</div>
+            <div class="module-item">M03: Privacy Breaking (ZKP/Mixer)</div>
+            <div class="module-item">M04: OSINT Dark Web Crawler</div>
+            <div class="module-item">M05: GNN Predictive Mapping</div>
+            <div class="module-item">M06: ISO-27037 Evidence Vault</div>
         </div>
-
-        <div id="admin-panel">
-            <h4 style="color:var(--acc); margin-top:0;">ROI & PERFORMANCE DASHBOARD</h4>
-            <div class="grid-dashboard">
-                <div class="stat-card">
-                    <small>Recuperación Proyectada</small>
-                    <div id="roi-val" style="font-size:20px; font-weight:bold;">$0.00</div>
-                </div>
-                <div class="stat-card">
-                    <small>Probabilidad de Atribución</small>
-                    <div id="attr-prob" style="font-size:20px; font-weight:bold; color:var(--succ);">0%</div>
-                </div>
-            </div>
-            <div id="audit-trail" style="font-size:9px; margin-top:10px; color:var(--gray); border-top:1px solid #333; padding-top:5px;">
-                Cadena de Custodia Inmutable: ACTIVA
-            </div>
-        </div>
-
-        <div id="report-view" class="doc-view">
-            <div style="border-bottom: 5px solid #000; display:flex; justify-content:space-between;">
-                <h2>PERITAJE INFORMÁTICO FORENSE</h2>
-                <p>ISO/IEC 27037:2012</p>
-            </div>
-            <p><strong>FOLIO BLOCKCHAIN:</strong> <span id="out-nft"></span></p>
-            <div id="ia-verdict" style="background:#f9f9f9; padding:20px; border:1px dashed #000; margin:20px 0;">
-                </div>
-            <p style="font-size:10px;">Este informe ha sido sellado temporalmente y su hash registrado en una sidechain privada para garantizar la integridad de la evidencia (Anti-Forensics Protection).</p>
-            <button class="btn no-print" onclick="window.print()">Emitir Certificación Oficial</button>
+        <div style="padding: 20px;">
+            <input type="text" id="target-hash" placeholder="TARGET_HASH" style="width:100%; background:#000; border:1px solid #333; color:var(--ia-green); padding:8px; font-size:10px;">
+            <button class="btn-action" style="width:100%; margin-top:10px;" onclick="deployAgentes()">DEPLOY AGENTS</button>
         </div>
     </div>
 
-    <script>
-        // Animación de Grafos
-        const map = document.getElementById('graph-map');
-        for(let i=0; i<15; i++) {
-            let n = document.createElement('div');
-            n.className = 'node';
-            n.style.left = Math.random()*90+'%';
-            n.style.top = Math.random()*90+'%';
-            map.appendChild(n);
-        }
+    <div class="main-stage">
+        <div class="top-dash no-print">
+            <div class="stat-box"><div class="stat-val" id="roi">$0.00</div><div class="stat-lbl">Recuperación Proyectada</div></div>
+            <div class="stat-box"><div class="stat-val" id="prob">0%</div><div class="stat-lbl">Certeza de Atribución</div></div>
+            <div class="stat-box"><div class="stat-val" id="nodes">0</div><div class="stat-lbl">Nodos en Monitoreo</div></div>
+        </div>
 
-        async function startAutonomousAgent() {
-            const h = document.getElementById('h-in').value;
-            if(!h) return;
-            document.getElementById('scan-box').style.display='block';
-            const logs = document.getElementById('ia-logs');
-            const bar = document.getElementById('p-bar');
+        <div class="visual-area">
+            <canvas id="network-canvas"></canvas>
+            <div id="ai-status" style="position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.7); border:1px solid var(--ia-green); padding:10px; font-size:10px; color:var(--ia-green);">
+                STATUS: WAITING_FOR_TARGET
+            </div>
+        </div>
+
+        <div class="terminal-tray" id="term">
+            [SYSTEM]: AGI Infrastructure Cloud Online...<br>
+            [SYSTEM]: Sidechain inexpugnable vinculada (ISO-27037)...<br>
+            [SYSTEM]: Esperando entrada de datos para fragmentación multicapa...
+        </div>
+    </div>
+
+    <div id="report-overlay">
+        <div style="border-bottom: 3px solid #000; display:flex; justify-content:space-between; align-items:center;">
+            <h1>AUDIT GLOBAL INTELLIGENCE</h1>
+            <p><strong>Ref: ISO/IEC 27037 CERTIFIED</strong></p>
+        </div>
+        <h2 style="text-align:center;">INFORME PERICIAL DE TRAZABILIDAD Y ATRIBUCIÓN</h2>
+        <div id="report-content" style="margin-top:20px;"></div>
+        <button class="btn-action no-print" onclick="window.print()">Emitir Certificación Oficial</button>
+        <button class="btn-action no-print" style="background:#666;" onclick="closeReport()">Cerrar</button>
+    </div>
+
+    <script>
+        const term = document.getElementById('term');
+        const canvas = document.getElementById('network-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function log(m) { term.innerHTML += `[AGENTE]: ${m}<br>`; term.scrollTop = term.scrollHeight; }
+
+        // Simulación de Trazabilidad Multicapa
+        function deployAgentes() {
+            const hash = document.getElementById('target-hash').value;
+            if(!hash) return;
+            document.getElementById('ai-status').innerText = "STATUS: AGENTS_DEPLOYED";
             
-            const steps = [
-                "> Iniciando infraestructura Cloud Auto-Scaling...",
-                "> Agentes autónomos desplegados en Cross-Chain Bridges (Stargate/Wormhole)...",
-                "> Aplicando GNN: Prediciendo saltos de fondos...",
-                "> Analizando metadatos Off-Chain (Telegram, DarkWeb, Discord)...",
-                "> Ejecutando IA de Estilo (Fingerprinting): Identificando patrones de gas...",
-                "> Desanonización de Zero Knowledge Proof detectada...",
-                "> Fusión de datos completada. Identidad atribuida al 87%.",
-                "> Registrando pasos en Sidechain de Custodia Inexpugnable...",
-                "> Borrador de informe pericial listo para tribunales."
+            const scripts = [
+                "Escalando infraestructura Cloud bajo demanda...",
+                "Iniciando rastreo Cross-Chain (Stargate Bridge)...",
+                "Fusión de datos Off-Chain iniciada (Dark Web APIs)...",
+                "Aplicando GNN para predicción de Chain-Hopping...",
+                "Analizando Fingerprinting de estilo (Gas/Horarios)...",
+                "Fragmentación de muros detectada. Visibilidad Multicapa: OK.",
+                "Inconsistencia en Zero Knowledge Proof identificada...",
+                "Generando borrador pericial inmutable en Sidechain..."
             ];
 
-            for(let i=0; i<steps.length; i++) {
-                logs.innerHTML += `<div>${steps[i]}</div>`;
-                logs.scrollTop = logs.scrollHeight;
-                bar.style.width = ((i+1)/steps.length)*100 + '%';
-                await new Promise(r => setTimeout(r, 800));
-            }
-
-            // Actualizar Dashboard
-            document.getElementById('roi-val').innerText = "$142,500.00";
-            document.getElementById('attr-prob').innerText = "87.4%";
-            document.getElementById('admin-panel').style.display = 'block';
-            
-            // Preparar Reporte
-            document.getElementById('out-nft').innerText = "0x" + Math.random().toString(16).substr(2, 15);
-            document.getElementById('ia-verdict').innerHTML = `
-                <h4>CONCLUSIÓN DE IA AGENCIA:</h4>
-                <p>Se ha formulado la hipótesis de "Chain Hopping" con fines de ocultamiento. El perfil conductual coincide con el grupo de amenaza identificado en la Dark Web como 'Alpha-Red'. Se recomienda acción legal inmediata bajo protocolo ISO 27037.</p>
-            `;
-            setTimeout(() => { 
-                document.getElementById('m-screen').style.display='none';
-                document.getElementById('report-view').style.display='block';
-            }, 2000);
+            let i = 0;
+            const interval = setInterval(() => {
+                log(scripts[i]);
+                i++;
+                if(i >= scripts.length) {
+                    clearInterval(interval);
+                    showReport();
+                }
+            }, 1000);
         }
+
+        function showReport() {
+            document.getElementById('roi').innerText = "$247,000.00";
+            document.getElementById('prob').innerText = "94.2%";
+            document.getElementById('nodes').innerText = "1,402";
+            document.getElementById('report-overlay').style.display = 'block';
+            document.getElementById('report-content').innerHTML = `
+                <p><strong>RESULTADO DE INVESTIGACIÓN AGENCIA:</strong></p>
+                <p>Mediante el análisis de grafos predictivos y el fingerprinting conductual, se ha logrado la desanonización del usuario vinculado al hash <strong>${document.getElementById('target-hash').value}</strong>.</p>
+                <p><strong>ATRIBUCIÓN:</strong> Alta coincidencia con patrones de retiro en Lightning Network identificados en foros de capa 2.</p>
+                <p><strong>PLAN DE ACCIÓN:</strong> Implementar controles internos nivel III y ejecutar reporte de sanción internacional.</p>
+            `;
+        }
+
+        function closeReport() { document.getElementById('report-overlay').style.display = 'none'; }
     </script>
 </body>
 </html>
