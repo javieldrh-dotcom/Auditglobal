@@ -1,124 +1,85 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>AGI - Ghost Tracer v3.5 | Cross-Chain & Privacy Breaking</title>
-    <style>
-        :root { --bg: #010409; --acc: #3b82f6; --text: #f0f6fc; --ia-green: #00ff41; --danger: #ff3e3e; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar Estilo Cyber-Audit */
-        .sidebar { width: 320px; background: #0d1117; border-right: 1px solid #30363d; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 25px; border-bottom: 2px solid var(--acc); background: rgba(59, 130, 246, 0.05); text-align: center; }
-        
-        /* Escenario de Visualización Radar */
-        .main-stage { flex-grow: 1; display: flex; flex-direction: column; background: #000; position: relative; }
-        #radar-container { flex-grow: 1; position: relative; background: radial-gradient(circle, #001529 0%, #000 100%); overflow: hidden; }
-        
-        /* Efecto de Escaneo Radar */
-        .radar-sweep { position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; background: conic-gradient(from 0deg, transparent, rgba(0, 255, 65, 0.1), transparent 60deg); animation: sweep 4s linear infinite; pointer-events: none; }
-        @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        padding: 20px;
+        background: rgba(13, 17, 23, 0.9);
+        border-bottom: 1px solid #333;
+    }
+    .metric-card {
+        background: #0d1117;
+        border: 1px solid #222;
+        padding: 15px;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+    .metric-card::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0;
+        width: 4px; height: 100%;
+        background: var(--acc);
+    }
+    .metric-title { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
+    .metric-value { font-size: 22px; font-weight: bold; margin-top: 5px; color: var(--text); }
+    .metric-trend { font-size: 10px; margin-top: 5px; }
+    .up { color: var(--ia-green); }
+    
+    /* Gráfico de Rendimiento de Agentes */
+    .agent-performance {
+        margin-top: 20px;
+        padding: 20px;
+        background: #0d1117;
+        border-radius: 8px;
+        border: 1px solid #333;
+    }
+    .agent-bar-row { display: flex; align-items: center; margin-bottom: 10px; font-size: 11px; }
+    .bar-bg { flex-grow: 1; height: 8px; background: #161b22; margin: 0 10px; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--acc); box-shadow: 0 0 10px var(--acc); }
+</style>
 
-        /* Nodos y Conexiones Cross-Chain */
-        .node-chain { position: absolute; border-radius: 50%; border: 1px solid var(--acc); padding: 5px; font-size: 8px; color: var(--acc); background: rgba(0,0,0,0.8); }
-        .bridge-line { position: absolute; height: 2px; background: linear-gradient(90deg, var(--acc), var(--ia-green)); opacity: 0.5; transform-origin: left center; }
+<div class="dashboard-grid no-print">
+    <div class="metric-card">
+        <div class="metric-title">Capital en Proceso</div>
+        <div class="metric-value" id="val-proceso">$1,420,500</div>
+        <div class="metric-trend up">↑ 12.4% vs mes anterior</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-title">Tasa de Éxito Pericial</div>
+        <div class="metric-value">91.8%</div>
+        <div class="metric-trend up">↑ 3.2% Optimización GNN</div>
+    </div>
+    <div class="metric-card" style="border-color: var(--ia-green);">
+        <div class="metric-title">ROI Promedio por Caso</div>
+        <div class="metric-value">4.2x</div>
+        <div class="metric-trend">Basado en Honorarios Nivel III</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-title">Integridad de Sidechain</div>
+        <div class="metric-value" style="color:var(--ia-green)">100%</div>
+        <div class="metric-trend">ISO-27037 Compliance OK</div>
+    </div>
+</div>
 
-        /* Panel de Inteligencia (IA Terminal) */
-        .terminal { height: 280px; background: #000; border-top: 1px solid #333; padding: 15px; font-size: 12px; color: var(--ia-green); overflow-y: auto; border-top: 2px solid var(--acc); }
-        
-        .stat-badge { padding: 5px 10px; border: 1px solid var(--ia-green); border-radius: 3px; font-size: 10px; margin-right: 10px; }
-        .btn-deploy { background: var(--ia-green); color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
-    </style>
-</head>
-<body>
-
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <strong style="letter-spacing: 3px;">AGI GHOST TRACER</strong><br>
-            <small style="color:var(--gray)">v3.5 - PRIVACY BREAKING ENABLED</small>
+<div class="agent-performance no-print">
+    <strong style="font-size: 12px; color: var(--acc);">RENDIMIENTO DE AGENTES IA (AUTÓNOMOS)</strong>
+    <div style="margin-top:15px;">
+        <div class="agent-bar-row">
+            <span style="width:120px;">Agente Atribución (Fingerprint)</span>
+            <div class="bar-bg"><div class="bar-fill" style="width: 94%;"></div></div>
+            <span>94% Eff.</span>
         </div>
-        <div style="padding: 20px;">
-            <label style="font-size: 10px; color: var(--gray);">IDENTIFICADOR DE OBJETIVO (HASH/ZKP):</label>
-            <input type="text" id="target" placeholder="0x... / Z-Addr" style="width:100%; background:#161b22; border:1px solid #333; color:var(--ia-green); padding:10px; margin-top:5px; outline:none;">
-            
-            <div style="margin-top: 20px;">
-                <div style="font-size: 10px; margin-bottom: 10px;">CAPACIDADES ACTIVAS:</div>
-                <div style="font-size: 9px; color: var(--ia-green);">
-                    [X] GNN Predictive Mapping<br>
-                    [X] ZKP De-anonymization<br>
-                    [X] Style Fingerprinting<br>
-                    [X] ISO-27037 Evidence Chain
-                </div>
-            </div>
-            
-            <button class="btn-deploy" onclick="runTrace()">Ejecutar Rastreo Autónomo</button>
+        <div class="agent-bar-row">
+            <span style="width:120px;">Agente Desanonización (ZKP)</span>
+            <div class="bar-bg"><div class="bar-fill" style="width: 78%; background: var(--warn);"></div></div>
+            <span>78% Eff.</span>
+        </div>
+        <div class="agent-bar-row">
+            <span style="width:120px;">Agente Cross-Chain (Bridge)</span>
+            <div class="bar-bg"><div class="bar-fill" style="width: 89%;"></div></div>
+            <span>89% Eff.</span>
         </div>
     </div>
-
-    <div class="main-stage">
-        <div id="radar-container">
-            <div class="radar-sweep"></div>
-            <div id="map-world"></div>
-            
-            <div style="position: absolute; bottom: 20px; left: 20px; display: flex;">
-                <span class="stat-badge">PROB. ATRIBUCIÓN: <span id="val-attr">0%</span></span>
-                <span class="stat-badge">NODOS CLOUD: 412</span>
-                <span class="stat-badge" style="border-color:var(--warn)">SIDECHAIN: INMUTABLE</span>
-            </div>
-        </div>
-
-        <div class="terminal" id="term-out">
-            [SYS] Esperando despliegue de agentes...<br>
-            [SYS] Motor de razonamiento semántico listo.<br>
-            [SYS] Infraestructura Cloud en modo Stand-by.
-        </div>
-    </div>
-
-    <script>
-        function log(msg, color = 'var(--ia-green)') {
-            const t = document.getElementById('term-out');
-            t.innerHTML += `<div style="color:${color}">> ${msg}</div>`;
-            t.scrollTop = t.scrollHeight;
-        }
-
-        function createChainNode(name, x, y) {
-            const n = document.createElement('div');
-            n.className = 'node-chain';
-            n.style.left = x + '%';
-            n.style.top = y + '%';
-            n.innerHTML = `[${name}]`;
-            document.getElementById('map-world').appendChild(n);
-        }
-
-        function runTrace() {
-            const target = document.getElementById('target').value;
-            if(!target) return;
-            
-            log("Iniciando fragmentación multicapa para: " + target.substring(0,10) + "...");
-            
-            // Simulación de creación de mapa cross-chain
-            setTimeout(() => {
-                createChainNode("ETH-MAINNET", 20, 30);
-                log("Agente detectó salto vía Stargate Bridge (LayerZero)...", 'var(--warn)');
-            }, 1000);
-
-            setTimeout(() => {
-                createChainNode("SOLANA-NET", 50, 60);
-                log("Atribución de Estilo: Patrón de gas coincide con billetera 0x44...A1", 'var(--ia-green)');
-                document.getElementById('val-attr').innerText = "89.2%";
-            }, 2500);
-
-            setTimeout(() => {
-                createChainNode("MIXER-TORN", 80, 20);
-                log("ALERTA: Intento de Privacy-Breaking en curso...", 'var(--danger)');
-                log("Análisis semántico: 'Alpha-Red' identificado en metadatos de Dark Web.", 'var(--ia-green)');
-                log("REGISTRO INMUTABLE: Evidencia sellada bajo ISO-27037.", 'var(--acc)');
-                alert("Rastreo Completo. Informe Pericial generado en la Sidechain.");
-            }, 4500);
-        }
-
-        // Crear ambiente inicial
-        createChainNode("ORIGIN", 10, 10);
-    </script>
-</body>
-</html>
+</div>
